@@ -5,22 +5,44 @@ from email.mime.text import MIMEText
 from supabase import create_client
 
 # ---------------------------------------------------------
-# CLEAN WEB PAGE STYLING
+# CLEAN WEB PAGE STYLING (Completely hides "Manage App" & Header)
 # ---------------------------------------------------------
 st.set_page_config(page_title="PS DIGITAL", page_icon="📱", layout="centered")
 
 clean_page_css = """
     <style>
-    #MainMenu {visibility: hidden !important; display: none !important;}
-    header {visibility: hidden !important; display: none !important;}
-    footer {visibility: hidden !important; display: none !important;}
-    div[data-testid="stToolbar"] {visibility: hidden !important; display: none !important;}
-    div[data-testid="stDecoration"] {visibility: hidden !important; display: none !important;}
-    div[data-testid="stSidebar"] {display: none !important;}
-    div[data-testid="stAppViewerHost"] {display: none !important;}
-    [data-testid="manage-app-button"] {display: none !important;}
-    button[title="Manage app"] {display: none !important;}
-    .main .block-container { padding-top: 1.5rem !important; }
+    /* Hide top header, main menu, footer, and sidebar */
+    #MainMenu, header, footer, [data-testid="stHeader"], [data-testid="stSidebar"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    /* Hide toolbars, status widgets, and decorations */
+    div[data-testid="stToolbar"], 
+    div[data-testid="stDecoration"], 
+    div[data-testid="stStatusWidget"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    /* Force-hide "Manage app" button & Streamlit viewer controls */
+    div[data-testid="stAppViewerHost"],
+    [data-testid="manage-app-button"],
+    button[title="Manage app"],
+    .viewerBadge_container__1t5dn,
+    div[class*="viewerBadge"],
+    div[class*="stAppViewerHost"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+
+    /* Reduce top padding */
+    .main .block-container {
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+    }
     </style>
 """
 st.markdown(clean_page_css, unsafe_allow_html=True)
@@ -198,4 +220,4 @@ else:
                             st.rerun()
                         except Exception as e:
                             st.error("Error saving profile. Check if Employee Number already exists.")
-                
+                    
