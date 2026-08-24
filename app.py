@@ -2,21 +2,37 @@ import streamlit as st
 from supabase import create_client
 
 # ---------------------------------------------------------
-# HIDE STREAMLIT TOP TOOLBAR & SIDEBAR
+# CLEAN WEB PAGE STYLING (Hides all corners & Streamlit UI)
 # ---------------------------------------------------------
 st.set_page_config(page_title="PS DIGITAL", page_icon="📱", layout="centered")
 
-hide_st_style = """
+clean_page_css = """
     <style>
-    #MainMenu {visibility: hidden !important;}
-    header {visibility: hidden !important;}
-    footer {visibility: hidden !important;}
+    /* Hide top header, main menu, and footer */
+    #MainMenu {visibility: hidden !important; display: none !important;}
+    header {visibility: hidden !important; display: none !important;}
+    footer {visibility: hidden !important; display: none !important;}
+    
+    /* Hide toolbars, status widgets, and decorations */
     div[data-testid="stToolbar"] {visibility: hidden !important; display: none !important;}
     div[data-testid="stDecoration"] {visibility: hidden !important; display: none !important;}
+    div[data-testid="stStatusWidget"] {visibility: hidden !important; display: none !important;}
     div[data-testid="stSidebar"] {display: none !important;}
+    
+    /* Hide "Manage app" button, badges, and viewer controls */
+    div[data-testid="stAppViewerHost"] {display: none !important;}
+    [data-testid="manage-app-button"] {display: none !important;}
+    button[title="Manage app"] {display: none !important;}
+    .viewerBadge_container__1t5dn {display: none !important;}
+    
+    /* Adjust top padding to bring content cleanly to the top */
+    .main .block-container {
+        padding-top: 1.5rem !important;
+        padding-bottom: 1.5rem !important;
+    }
     </style>
 """
-st.markdown(hide_st_style, unsafe_allow_html=True)
+st.markdown(clean_page_css, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # CONFIGURATION
@@ -25,19 +41,18 @@ SUPABASE_URL = "https://tqxbeudrvkinuujojasx.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeGJldWRydmtpbnV1am9qYXN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NDQ5NzcsImV4cCI6MjEwMzEyMDk3N30.UC0UDV-vTsSnw8Ff2Jrp9DAfhhhpIkz1iY5eDtimU78"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# PASTE YOUR PERSONAL/HOST EMAIL HERE (MUST BE LOWERCASE)
-ADMIN_EMAIL = "pardhukilli273@gmail.com"
+ADMIN_EMAIL = "pardhukilli273@gmail.com"  # Type your host email in lowercase
 
+# ---------------------------------------------------------
+# APP CONTENT
+# ---------------------------------------------------------
 st.title("📱 PS DIGITAL")
 st.caption("EMPLOYEE MANAGEMENT SYSTEM")
 
-# Single Email Entry Point for Everyone
 user_email = st.text_input("Enter Email Address to Access Portal").strip().lower()
 
 if user_email:
-    # -----------------------------------------------------
     # 👑 HOST / ADMIN AUTOMATIC LOGIN
-    # -----------------------------------------------------
     if user_email == ADMIN_EMAIL:
         st.success("👑 Logged in as Host (Admin)")
         st.header("Admin Dashboard")
@@ -62,9 +77,7 @@ if user_email:
         else:
             st.info("No employee records found in the database.")
 
-    # -----------------------------------------------------
     # 👤 REGULAR EMPLOYEE AUTOMATIC LOGIN
-    # -----------------------------------------------------
     else:
         st.header("👤 Employee Profile View")
         response = supabase.table("employees").select("*").eq("email", user_email).execute()
