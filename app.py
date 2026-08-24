@@ -2,7 +2,7 @@ import streamlit as st
 from supabase import create_client
 
 # ---------------------------------------------------------
-# HIDE STREAMLIT TOP TOOLBAR & HEADER FOR ALL USERS
+# HIDE STREAMLIT TOP TOOLBAR & SIDEBAR
 # ---------------------------------------------------------
 st.set_page_config(page_title="PS DIGITAL", page_icon="📱", layout="centered")
 
@@ -13,32 +13,35 @@ hide_st_style = """
     footer {visibility: hidden !important;}
     div[data-testid="stToolbar"] {visibility: hidden !important; display: none !important;}
     div[data-testid="stDecoration"] {visibility: hidden !important; display: none !important;}
-    div[data-testid="stStatusWidget"] {visibility: hidden !important; display: none !important;}
+    div[data-testid="stSidebar"] {display: none !important;}
     </style>
 """
 st.markdown(hide_st_style, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# SUPABASE CONNECTION & APP LOGIC
+# CONFIGURATION
 # ---------------------------------------------------------
 SUPABASE_URL = "https://tqxbeudrvkinuujojasx.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeGJldWRydmtpbnV1am9qYXN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NDQ5NzcsImV4cCI6MjEwMzEyMDk3N30.UC0UDV-vTsSnw8Ff2Jrp9DAfhhhpIkz1iY5eDtimU78"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-ADMIN_PIN = "4110117"  # Change to your secret PIN
+# PASTE YOUR PERSONAL/HOST EMAIL HERE (MUST BE LOWERCASE)
+ADMIN_EMAIL = "pardhukilli273@gmail.com"
 
 st.title("📱 PS DIGITAL")
 st.caption("EMPLOYEE MANAGEMENT SYSTEM")
 
-role = st.sidebar.radio("Select Portal Role", ["Employee Portal", "Admin Dashboard (Host)"])
+# Single Email Entry Point for Everyone
+user_email = st.text_input("Enter Email Address to Access Portal").strip().lower()
 
-if role == "Admin Dashboard (Host)":
-    st.header("👑 Admin Dashboard")
-    
-    pin_input = st.text_input("Enter Admin Passcode to Access", type="password")
-    
-    if pin_input == ADMIN_PIN:
-        st.success("Access Granted!")
+if user_email:
+    # -----------------------------------------------------
+    # 👑 HOST / ADMIN AUTOMATIC LOGIN
+    # -----------------------------------------------------
+    if user_email == ADMIN_EMAIL:
+        st.success("👑 Logged in as Host (Admin)")
+        st.header("Admin Dashboard")
+        
         search_query = st.text_input("Search by Name or Employee No")
         
         response = supabase.table("employees").select("*").execute()
@@ -54,20 +57,16 @@ if role == "Admin Dashboard (Host)":
                 st.metric("Total Records Found", len(filtered))
                 st.dataframe(filtered)
             else:
-                st.metric("Total Employees", len(data))
+                st.metric("Total Employees Registered", len(data))
                 st.dataframe(data)
         else:
             st.info("No employee records found in the database.")
-    elif pin_input != "":
-        st.error("Incorrect Passcode! Access Denied.")
+
+    # -----------------------------------------------------
+    # 👤 REGULAR EMPLOYEE AUTOMATIC LOGIN
+    # -----------------------------------------------------
     else:
-        st.info("Please enter the passcode above to view host data.")
-
-elif role == "Employee Portal":
-    st.header("👤 Employee Profile View")
-    user_email = st.text_input("Enter your registered Email Address").strip().lower()
-
-    if user_email:
+        st.header("👤 Employee Profile View")
         response = supabase.table("employees").select("*").eq("email", user_email).execute()
         records = response.data
 
@@ -96,7 +95,7 @@ elif role == "Employee Portal":
                     }).eq("email", user_email).execute()
                     st.success("Your details were updated successfully!")
         else:
-            st.warning("No profile found for this email. Register below:")
+            st.warning("No profile found for this email. Register your profile below:")
             with st.form("new_employee_form"):
                 st.subheader("Add New Profile")
                 emp_no = st.text_input("Employee Number *")
@@ -125,4 +124,4 @@ elif role == "Employee Portal":
                             st.success("Profile saved successfully!")
                         except Exception as e:
                             st.error("Error saving profile. Check if Employee Number already exists.")
-                
+                            
