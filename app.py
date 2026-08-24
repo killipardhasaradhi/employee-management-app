@@ -1,64 +1,124 @@
 import streamlit as st
+import random
+import smtplib
+from email.mime.text import MIMEText
 from supabase import create_client
 
 # ---------------------------------------------------------
-# CLEAN WEB PAGE STYLING (Hides all corners & Streamlit UI)
+# CLEAN WEB PAGE STYLING
 # ---------------------------------------------------------
 st.set_page_config(page_title="PS DIGITAL", page_icon="📱", layout="centered")
 
 clean_page_css = """
     <style>
-    /* Hide top header, main menu, and footer */
     #MainMenu {visibility: hidden !important; display: none !important;}
     header {visibility: hidden !important; display: none !important;}
     footer {visibility: hidden !important; display: none !important;}
-    
-    /* Hide toolbars, status widgets, and decorations */
     div[data-testid="stToolbar"] {visibility: hidden !important; display: none !important;}
     div[data-testid="stDecoration"] {visibility: hidden !important; display: none !important;}
-    div[data-testid="stStatusWidget"] {visibility: hidden !important; display: none !important;}
     div[data-testid="stSidebar"] {display: none !important;}
-    
-    /* Hide "Manage app" button, badges, and viewer controls */
     div[data-testid="stAppViewerHost"] {display: none !important;}
     [data-testid="manage-app-button"] {display: none !important;}
     button[title="Manage app"] {display: none !important;}
-    .viewerBadge_container__1t5dn {display: none !important;}
-    
-    /* Adjust top padding to bring content cleanly to the top */
-    .main .block-container {
-        padding-top: 1.5rem !important;
-        padding-bottom: 1.5rem !important;
-    }
+    .main .block-container { padding-top: 1.5rem !important; }
     </style>
 """
 st.markdown(clean_page_css, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# CONFIGURATION
+# CONFIGURATION (FILL YOUR DETAILS HERE)
 # ---------------------------------------------------------
 SUPABASE_URL = "https://tqxbeudrvkinuujojasx.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeGJldWRydmtpbnV1am9qYXN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NDQ5NzcsImV4cCI6MjEwMzEyMDk3N30.UC0UDV-vTsSnw8Ff2Jrp9DAfhhhpIkz1iY5eDtimU78"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-ADMIN_EMAIL = "pardhukilli273@gmail.com"  # Type your host email in lowercase
+ADMIN_EMAIL = "pardhukilli273@gmail.com"  # Host Email
+
+# Gmail SMTP Settings for sending OTPs
+SENDER_EMAIL = "pardhukilli273@gmail.com"
+SENDER_PASSWORD = "fneh pjig gqum vtmv"  # 16-character Gmail App Password
+
+# Initialize session states for OTP verification
+if "otp_sent" not in st.session_state:
+    st.session_state.otp_sent = False
+if "generated_otp" not in st.session_state:
+    st.session_state.generated_otp = None
+if "verified_email" not in st.session_state:
+    st.session_state.verified_email = None
+
+def send_otp_email(target_email, otp_code):
+    try:
+        msg = MIMEText(f"Your verification code for PS DIGITAL Employee Portal is: {otp_code}")
+        msg['Subject'] = 'PS DIGITAL - Email Verification Code'
+        msg['From'] = SENDER_EMAIL
+        msg['To'] = target_email
+
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        server.sendmail(SENDER_EMAIL, target_email, msg.as_string())
+        server.quit()
+        return True
+    except Exception as e:
+        st.error(f"Error sending email: {e}")
+        return False
 
 # ---------------------------------------------------------
-# APP CONTENT
+# APP INTERFACE
 # ---------------------------------------------------------
 st.title("📱 PS DIGITAL")
 st.caption("EMPLOYEE MANAGEMENT SYSTEM")
 
-user_email = st.text_input("Enter Email Address to Access Portal").strip().lower()
+# STAGE 1: Email Input & OTP Request
+if not st.session_state.verified_email:
+    user_email = st.text_input("Enter Email Address to Access Portal").strip().lower()
 
-if user_email:
-    # 👑 HOST / ADMIN AUTOMATIC LOGIN
-    if user_email == ADMIN_EMAIL:
+    if user_email and not st.session_state.otp_sent:
+        if st.button("Send Verification Code"):
+            otp = str(random.randint(100000, 999999))
+            if send_otp_email(user_email, otp):
+                st.session_state.generated_otp = otp
+                st.session_state.otp_sent = True
+                st.session_state.temp_email = user_email
+                st.success(f"Verification code sent to {user_email}!")
+                st.rerun()
+
+    # STAGE 2: Verify OTP
+    if st.session_state.otp_sent:
+        st.info(f"Enter the 6-digit code sent to **{st.session_state.temp_email}**")
+        input_otp = st.text_input("6-Digit Verification Code", max_chars=6)
+
+        if st.button("Verify & Login"):
+            if input_otp == st.session_state.generated_otp:
+                st.session_state.verified_email = st.session_state.temp_email
+                st.session_state.otp_sent = False
+                st.success("Email verified successfully!")
+                st.rerun()
+            else:
+                st.error("Invalid Code! Please check your email and try again.")
+        
+        if st.button("Resend Code / Change Email"):
+            st.session_state.otp_sent = False
+            st.rerun()
+
+# STAGE 3: Logged In View
+else:
+    active_email = st.session_state.verified_email
+    
+    # Header with Logout Button
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.write(f"Logged in: **{active_email}**")
+    with col2:
+        if st.button("Logout"):
+            st.session_state.verified_email = None
+            st.rerun()
+
+    # 👑 HOST / ADMIN PORTAL
+    if active_email == ADMIN_EMAIL:
         st.success("👑 Logged in as Host (Admin)")
         st.header("Admin Dashboard")
         
         search_query = st.text_input("Search by Name or Employee No")
-        
         response = supabase.table("employees").select("*").execute()
         data = response.data
 
@@ -77,10 +137,10 @@ if user_email:
         else:
             st.info("No employee records found in the database.")
 
-    # 👤 REGULAR EMPLOYEE AUTOMATIC LOGIN
+    # 👤 EMPLOYEE PORTAL
     else:
         st.header("👤 Employee Profile View")
-        response = supabase.table("employees").select("*").eq("email", user_email).execute()
+        response = supabase.table("employees").select("*").eq("email", active_email).execute()
         records = response.data
 
         if records:
@@ -105,7 +165,7 @@ if user_email:
                         "position": pos,
                         "phone": phone,
                         "salary": salary
-                    }).eq("email", user_email).execute()
+                    }).eq("email", active_email).execute()
                     st.success("Your details were updated successfully!")
         else:
             st.warning("No profile found for this email. Register your profile below:")
@@ -131,10 +191,11 @@ if user_email:
                                 "department": dept,
                                 "position": pos,
                                 "phone": phone,
-                                "email": user_email,
+                                "email": active_email,
                                 "salary": salary
                             }).execute()
                             st.success("Profile saved successfully!")
+                            st.rerun()
                         except Exception as e:
                             st.error("Error saving profile. Check if Employee Number already exists.")
-                            
+                
