@@ -1,15 +1,32 @@
 import streamlit as st
 from supabase import create_client
 
-# Supabase Database Connection
+# ---------------------------------------------------------
+# HIDE STREAMLIT TOP TOOLBAR & HEADER FOR ALL USERS
+# ---------------------------------------------------------
+st.set_page_config(page_title="PS DIGITAL", page_icon="📱", layout="centered")
+
+hide_st_style = """
+    <style>
+    #MainMenu {visibility: hidden !important;}
+    header {visibility: hidden !important;}
+    footer {visibility: hidden !important;}
+    div[data-testid="stToolbar"] {visibility: hidden !important; display: none !important;}
+    div[data-testid="stDecoration"] {visibility: hidden !important; display: none !important;}
+    div[data-testid="stStatusWidget"] {visibility: hidden !important; display: none !important;}
+    </style>
+"""
+st.markdown(hide_st_style, unsafe_allow_html=True)
+
+# ---------------------------------------------------------
+# SUPABASE CONNECTION & APP LOGIC
+# ---------------------------------------------------------
 SUPABASE_URL = "https://tqxbeudrvkinuujojasx.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeGJldWRydmtpbnV1am9qYXN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NDQ5NzcsImV4cCI6MjEwMzEyMDk3N30.UC0UDV-vTsSnw8Ff2Jrp9DAfhhhpIkz1iY5eDtimU78"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Set your secret Admin Passcode here (change "1234" to any secret PIN you want)
-ADMIN_PIN = "4110117"
+ADMIN_PIN = "4110117"  # Change to your secret PIN
 
-st.set_page_config(page_title="PS DIGITAL", page_icon="📱")
 st.title("📱 PS DIGITAL")
 st.caption("EMPLOYEE MANAGEMENT SYSTEM")
 
@@ -18,7 +35,6 @@ role = st.sidebar.radio("Select Portal Role", ["Employee Portal", "Admin Dashboa
 if role == "Admin Dashboard (Host)":
     st.header("👑 Admin Dashboard")
     
-    # Password Protection Block
     pin_input = st.text_input("Enter Admin Passcode to Access", type="password")
     
     if pin_input == ADMIN_PIN:
@@ -109,4 +125,4 @@ elif role == "Employee Portal":
                             st.success("Profile saved successfully!")
                         except Exception as e:
                             st.error("Error saving profile. Check if Employee Number already exists.")
-                            
+                
