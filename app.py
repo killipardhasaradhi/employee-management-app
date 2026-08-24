@@ -5,27 +5,22 @@ from email.mime.text import MIMEText
 from supabase import create_client
 
 # ---------------------------------------------------------
-# CLEAN WEB PAGE STYLING (Completely hides "Manage App" & Header)
+# CLEAN WEB PAGE STYLING (Hides Streamlit UI & Manage App)
 # ---------------------------------------------------------
 st.set_page_config(page_title="PS DIGITAL", page_icon="📱", layout="centered")
 
 clean_page_css = """
     <style>
-    /* Hide top header, main menu, footer, and sidebar */
     #MainMenu, header, footer, [data-testid="stHeader"], [data-testid="stSidebar"] {
         display: none !important;
         visibility: hidden !important;
     }
-    
-    /* Hide toolbars, status widgets, and decorations */
     div[data-testid="stToolbar"], 
     div[data-testid="stDecoration"], 
     div[data-testid="stStatusWidget"] {
         display: none !important;
         visibility: hidden !important;
     }
-    
-    /* Force-hide "Manage app" button & Streamlit viewer controls */
     div[data-testid="stAppViewerHost"],
     [data-testid="manage-app-button"],
     button[title="Manage app"],
@@ -37,8 +32,6 @@ clean_page_css = """
         opacity: 0 !important;
         pointer-events: none !important;
     }
-
-    /* Reduce top padding */
     .main .block-container {
         padding-top: 1rem !important;
         padding-bottom: 1rem !important;
@@ -48,19 +41,17 @@ clean_page_css = """
 st.markdown(clean_page_css, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# CONFIGURATION (FILL YOUR DETAILS HERE)
+# CONFIGURATION (UPDATE THESE 4 VALUES)
 # ---------------------------------------------------------
 SUPABASE_URL = "https://tqxbeudrvkinuujojasx.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeGJldWRydmtpbnV1am9qYXN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NDQ5NzcsImV4cCI6MjEwMzEyMDk3N30.UC0UDV-vTsSnw8Ff2Jrp9DAfhhhpIkz1iY5eDtimU78"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 ADMIN_EMAIL = "pardhukilli273@gmail.com"  # Host Email
+SENDER_EMAIL = "pardhukilli273@gmail.com"        # Email sending OTPs
+SENDER_PASSWORD = "fneh pjig gqum vtmv"    # 16-character Gmail App Password
 
-# Gmail SMTP Settings for sending OTPs
-SENDER_EMAIL = "pardhukilli273@gmail.com"
-SENDER_PASSWORD = "fneh pjig gqum vtmv"  # 16-character Gmail App Password
-
-# Initialize session states for OTP verification
+# Initialize session states
 if "otp_sent" not in st.session_state:
     st.session_state.otp_sent = False
 if "generated_otp" not in st.session_state:
@@ -83,6 +74,21 @@ def send_otp_email(target_email, otp_code):
     except Exception as e:
         st.error(f"Error sending email: {e}")
         return False
+
+# Helper function to generate an unused Employee ID between 1 and 1000
+def generate_unique_emp_id():
+    response = supabase.table("employees").select("employee_no").execute()
+    existing_ids = set()
+    if response.data:
+        for row in response.data:
+            if row.get("employee_no"):
+                existing_ids.add(str(row.get("employee_no")).strip())
+    
+    for _ in range(1000):
+        rand_id = str(random.randint(1, 1000))
+        if rand_id not in existing_ids:
+            return rand_id
+    return str(random.randint(1001, 9999))
 
 # ---------------------------------------------------------
 # APP INTERFACE
@@ -126,7 +132,6 @@ if not st.session_state.verified_email:
 else:
     active_email = st.session_state.verified_email
     
-    # Header with Logout Button
     col1, col2 = st.columns([3, 1])
     with col1:
         st.write(f"Logged in: **{active_email}**")
@@ -148,8 +153,8 @@ else:
             if search_query:
                 filtered = [
                     emp for emp in data 
-                    if search_query.lower() in emp.get("name", "").lower() 
-                    or search_query.lower() in emp.get("employee_no", "").lower()
+                    if search_query.lower() in str(emp.get("name", "")).lower() 
+                    or search_query.lower() in str(emp.get("employee_no", "")).lower()
                 ]
                 st.metric("Total Records Found", len(filtered))
                 st.dataframe(filtered)
@@ -171,29 +176,39 @@ else:
             
             with st.form("edit_employee_form"):
                 st.subheader("Edit Your Details")
-                emp_no = st.text_input("Employee Number", value=emp.get("employee_no") or "", disabled=True)
-                name = st.text_input("Full Name", value=emp.get("name") or "")
-                dept = st.text_input("Department", value=emp.get("department") or "")
-                pos = st.text_input("Position", value=emp.get("position") or "")
-                phone = st.text_input("Phone Number", value=emp.get("phone") or "")
-                salary = st.text_input("Salary", value=emp.get("salary") or "")
+                st.text_input("Employee Number", value=str(emp.get("employee_no") or ""), disabled=True)
+                name = st.text_input("Full Name *", value=str(emp.get("name") or ""))
+                dept = st.text_input("Department", value=str(emp.get("department") or ""))
+                pos = st.text_input("Position", value=str(emp.get("position") or ""))
+                phone = st.text_input("Phone Number", value=str(emp.get("phone") or ""))
+                salary = st.text_input("Salary", value=str(emp.get("salary") or ""))
 
                 submit_update = st.form_submit_button("Update My Details")
                 
                 if submit_update:
-                    supabase.table("employees").update({
-                        "name": name,
-                        "department": dept,
-                        "position": pos,
-                        "phone": phone,
-                        "salary": salary
-                    }).eq("email", active_email).execute()
-                    st.success("Your details were updated successfully!")
+                    if not name.strip():
+                        st.error("Full Name cannot be empty!")
+                    else:
+                        try:
+                            supabase.table("employees").update({
+                                "name": name,
+                                "department": dept,
+                                "position": pos,
+                                "phone": phone,
+                                "salary": salary
+                            }).eq("email", active_email).execute()
+                            st.success("Your details were updated successfully!")
+                        except Exception as e:
+                            st.error(f"Failed to update details: {e}")
         else:
             st.warning("No profile found for this email. Register your profile below:")
+            
+            # Auto-assign a unique ID between 1 and 1000
+            assigned_id = generate_unique_emp_id()
+            
             with st.form("new_employee_form"):
                 st.subheader("Add New Profile")
-                emp_no = st.text_input("Employee Number *")
+                emp_no = st.text_input("Assigned Employee Number (1–1000)", value=assigned_id, disabled=True)
                 name = st.text_input("Full Name *")
                 dept = st.text_input("Department")
                 pos = st.text_input("Position")
@@ -203,12 +218,12 @@ else:
                 submit_new = st.form_submit_button("Save Profile")
 
                 if submit_new:
-                    if not emp_no or not name:
-                        st.error("Employee Number and Full Name are required!")
+                    if not name.strip():
+                        st.error("Full Name is required!")
                     else:
                         try:
                             supabase.table("employees").insert({
-                                "employee_no": emp_no,
+                                "employee_no": assigned_id,
                                 "name": name,
                                 "department": dept,
                                 "position": pos,
@@ -216,8 +231,7 @@ else:
                                 "email": active_email,
                                 "salary": salary
                             }).execute()
-                            st.success("Profile saved successfully!")
+                            st.success(f"Profile saved successfully! Your Employee No is #{assigned_id}")
                             st.rerun()
                         except Exception as e:
-                            st.error("Error saving profile. Check if Employee Number already exists.")
-                    
+                            st.error(f"Error saving profile: {e}")
