@@ -33,8 +33,8 @@ st.markdown("""
 # CREDENTIALS CONFIGURATION
 # ---------------------------------------------------------
 SUPABASE_URL = "https://tqxbeudrvkinuujojasx.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeGJldWRydmtpbnV1am9qYXN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NDQ5NzcsImV4cCI6MjEwMzEyMDk3N30.UC0UDV-vTsSnw8Ff2Jrp9DAfhhhpIkz1iY5eDtimU78"
-
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeGJldWRydmtpbnV1am9qYXN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NDQ5NzcsImV4cCI6MjEwMzEyMDk3N30.UC0UDV-vTsSnw8Ff2Jrp9DAfhhhpIkz1iY5eDtimU78 
+"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 SUPER_ADMIN_EMAIL = "pardhukilli273@gmail.com"
@@ -63,8 +63,11 @@ def send_otp_email(target_email, otp_code):
         return False
 
 def generate_unique_emp_id():
-    response = supabase.table("employees").select("employee_no").execute()
-    existing_ids = {str(row.get("employee_no")).strip() for row in (response.data or []) if row.get("employee_no")}
+    try:
+        response = supabase.table("employees").select("employee_no").execute()
+        existing_ids = {str(row.get("employee_no")).strip() for row in (response.data or []) if row.get("employee_no")}
+    except Exception:
+        existing_ids = set()
     for _ in range(1000):
         rand_id = str(random.randint(1, 1000))
         if rand_id not in existing_ids: return rand_id
@@ -108,8 +111,16 @@ if not st.session_state.verified_email:
 # ---------------------------------------------------------
 else:
     active_email = st.session_state.verified_email
-    host_check = supabase.table("companies").select("*").eq("host_email", active_email).execute().data
-    emp_records = supabase.table("employees").select("*").eq("email", active_email).execute().data
+    
+    try:
+        host_check = supabase.table("companies").select("*").eq("host_email", active_email).execute().data
+    except Exception:
+        host_check = []
+
+    try:
+        emp_records = supabase.table("employees").select("*").eq("email", active_email).execute().data
+    except Exception:
+        emp_records = []
 
     # --- 1. SUPER ADMIN VIEW ---
     if active_email == SUPER_ADMIN_EMAIL:
@@ -208,7 +219,10 @@ else:
             st.rerun()
         st.markdown("---")
 
-        all_comps = [c.get("company_name") for c in (supabase.table("companies").select("company_name").execute().data or [])]
+        try:
+            all_comps = [c.get("company_name") for c in (supabase.table("companies").select("company_name").execute().data or []) if c.get("company_name")]
+        except Exception:
+            all_comps = []
 
         if st.session_state.show_host_reg:
             st.subheader("🏢 Register Your Company as Host")
@@ -218,12 +232,15 @@ else:
                 h_phone = st.text_input("Host Phone Number")
                 if st.form_submit_button("Create Company & Become Host"):
                     if new_c_name and h_name:
-                        supabase.table("companies").insert({
-                            "company_name": new_c_name, "host_name": h_name,
-                            "host_email": active_email, "host_phone": h_phone
-                        }).execute()
-                        st.session_state.show_host_reg = False
-                        st.rerun()
+                        try:
+                            supabase.table("companies").insert({
+                                "company_name": new_c_name, "host_name": h_name,
+                                "host_email": active_email, "host_phone": h_phone
+                            }).execute()
+                            st.session_state.show_host_reg = False
+                            st.rerun()
+                        except Exception as err:
+                            st.error(f"Failed to register company: {err}")
             if st.button("⬅️ Back to Employee Joining Form"):
                 st.session_state.show_host_reg = False
                 st.rerun()
@@ -239,16 +256,36 @@ else:
                 dept = st.text_input("Department")
                 pos = st.text_input("Position")
                 phone = st.text_input("Phone Number")
-                salary = st.text_input("Salary")
+                salary_raw = st.text_input("Salary")
 
                 if st.form_submit_button("Save Profile"):
                     if name.strip() and biz_input:
-                        supabase.table("employees").insert({
-                            "company_name": biz_input, "employee_no": assigned_id,
-                            "name": name, "department": dept, "position": pos,
-                            "phone": phone, "email": active_email, "salary": salary
-                        }).execute()
-                        st.rerun()
+                        # Convert salary to float/int safely if user typed a number
+                        try:
+                            salary_val = float(salary_raw) if salary_raw.strip() else 0
+                        except ValueError:
+                            salary_val = salary_raw
+
+                        payload = {
+                            "company_name": biz_input, 
+                            "employee_no": assigned_id,
+                            "name": name.strip(), 
+                            "department": dept.strip(), 
+                            "position": pos.strip(),
+                            "phone": phone.strip(), 
+                            "email": active_email, 
+                            "salary": salary_val
+                        }
+                        
+                        try:
+                            supabase.table("employees").insert(payload).execute()
+                            st.success("Profile saved successfully!")
+                            st.rerun()
+                        except Exception as db_err:
+                            st.error(f"Database error while saving profile: {db_err}")
+                    else:
+                        st.error("Please fill in all required fields marked with *.")
+
             st.markdown("---")
             if st.button("👔 Are you the Host / Owner of a company? Click here"):
                 st.session_state.show_host_reg = True
