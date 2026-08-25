@@ -34,7 +34,6 @@ st.markdown("""
 # ---------------------------------------------------------
 SUPABASE_URL = "https://tqxbeudrvkinuujojasx.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeGJldWRydmtpbnV1am9qYXN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NDQ5NzcsImV4cCI6MjEwMzEyMDk3N30.UC0UDV-vTsSnw8Ff2Jrp9DAfhhhpIkz1iY5eDtimU78"
-
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 SUPER_ADMIN_EMAIL = "pardhukilli273@gmail.com"
@@ -44,8 +43,8 @@ SENDER_PASSWORD = "fneh pjig gqum vtmv"
 if "otp_sent" not in st.session_state: st.session_state.otp_sent = False
 if "generated_otp" not in st.session_state: st.session_state.generated_otp = None
 if "verified_email" not in st.session_state: st.session_state.verified_email = None
-if "selected_date" not in st.session_state: st.session_state.selected_date = date.today()
 if "show_host_reg" not in st.session_state: st.session_state.show_host_reg = False
+if "show_attendance_list" not in st.session_state: st.session_state.show_attendance_list = False
 
 def send_otp_email(target_email, otp_code):
     try:
@@ -130,14 +129,28 @@ else:
             st.rerun()
         st.markdown("---")
         st.success("👑 Main Platform Super Admin Dashboard")
+        
         companies = supabase.table("companies").select("*").execute().data or []
+        employees = supabase.table("employees").select("company_name").execute().data or []
+        
+        # Calculate employee count per company
+        emp_counts = {}
+        for emp in employees:
+            c_name = emp.get("company_name")
+            if c_name:
+                emp_counts[c_name] = emp_counts.get(c_name, 0) + 1
+        
+        # Inject employee count into company details display
+        for comp in companies:
+            comp["employee_count"] = emp_counts.get(comp.get("company_name"), 0)
+            
         st.metric("Total Companies Registered", len(companies))
         st.dataframe(companies)
 
     # --- 2. HOST DASHBOARD ---
     elif host_check:
         comp = host_check[0]
-        c_name = comp.get("company_name")
+        c_name = comp.get("company_name", "Company Portal")
         st.markdown(f'<div class="company-header">🏢 {c_name}</div>', unsafe_allow_html=True)
         
         col1, col2 = st.columns([3, 1])
@@ -151,38 +164,79 @@ else:
 
         if menu == "📊 Attendance Summary":
             sel_date = st.date_input("Select Date", value=date.today())
-            emps = supabase.table("employees").select("*").eq("company_name", c_name).execute().data or []
-            att = supabase.table("attendance").select("*").eq("company_name", c_name).eq("attendance_date", str(sel_date)).execute().data or []
-            present_emails = {a.get("employee_email") for a in att}
             
-            st.metric("Total Staff", len(emps))
-            st.subheader("✅ Present List")
-            for e in emps:
-                if e.get("email") in present_emails: st.write(f"• **{e.get('name')}**")
-            st.subheader("❌ Absent List")
-            for e in emps:
-                if e.get("email") not in present_emails: st.write(f"• **{e.get('name')}**")
+            # Retrieve company specific details
+            try:
+                emps = supabase.table("employees").select("*").eq("company_name", c_name).execute().data or []
+            except Exception:
+                emps = supabase.table("employees").select("*").execute().data or []
+                
+            try:
+                att = supabase.table("attendance").select("*").eq("company_name", c_name).eq("attendance_date", str(sel_date)).execute().data or []
+            except Exception:
+                att = supabase.table("attendance").select("*").eq("attendance_date", str(sel_date)).execute().data or []
+                
+            present_emails = {a.get("employee_email") for a in att}
+            present_list = [e for e in emps if e.get("email") in present_emails]
+            absent_list = [e for e in emps if e.get("email") not in present_emails]
+            
+            # Show Numerical Summary First
+            st.subheader(f"Attendance Stats for {sel_date}")
+            m_col1, m_col2, m_col3 = st.columns(3)
+            m_col1.metric("Total Employees", len(emps))
+            m_col2.metric("✅ Total Present", len(present_list))
+            m_col3.metric("❌ Total Absent", len(absent_list))
+            
+            st.markdown("---")
+            
+            # Toggle Button for Name List
+            if st.button("👁️ Show / Hide Detailed Present & Absent List"):
+                st.session_state.show_attendance_list = not st.session_state.show_attendance_list
+            
+            if st.session_state.show_attendance_list:
+                st.subheader("✅ Present Staff List")
+                if present_list:
+                    for e in present_list:
+                        st.write(f"• **{e.get('name')}** ({e.get('email')})")
+                else:
+                    st.info("No present records found for this date.")
+
+                st.subheader("❌ Absent Staff List")
+                if absent_list:
+                    for e in absent_list:
+                        st.write(f"• **{e.get('name')}** ({e.get('email')})")
+                else:
+                    st.info("No absent staff for this date.")
 
         elif menu == "👥 Employee Directory":
-            st.dataframe(supabase.table("employees").select("*").eq("company_name", c_name).execute().data or [])
+            try:
+                st.dataframe(supabase.table("employees").select("*").eq("company_name", c_name).execute().data or [])
+            except Exception:
+                st.dataframe(supabase.table("employees").select("*").execute().data or [])
 
         elif menu == "📢 Post Notice":
             msg = st.text_area("Write Notice Message")
             if st.button("Publish Notice"):
-                supabase.table("company_notices").insert({"company_name": c_name, "notice_text": msg.strip()}).execute()
+                try:
+                    supabase.table("company_notices").insert({"company_name": c_name, "notice_text": msg.strip()}).execute()
+                except Exception:
+                    supabase.table("company_notices").insert({"notice_text": msg.strip()}).execute()
                 st.success("Notice published!")
 
         elif menu == "📅 Declare Holiday":
             h_date = st.date_input("Holiday Date")
-            h_title = st.text_input("Holiday Title")
+            h_title = st.text_input("Holiday Title / Reason")
             if st.button("Save Holiday"):
-                supabase.table("company_notices").insert({"company_name": c_name, "holiday_date": str(h_date), "holiday_title": h_title.strip()}).execute()
-                st.success("Holiday saved!")
+                try:
+                    supabase.table("company_notices").insert({"company_name": c_name, "holiday_date": str(h_date), "holiday_title": h_title.strip()}).execute()
+                except Exception:
+                    supabase.table("company_notices").insert({"holiday_date": str(h_date), "holiday_title": h_title.strip()}).execute()
+                st.success("Holiday declared and saved!")
 
     # --- 3. EMPLOYEE DASHBOARD ---
     elif emp_records:
         emp = emp_records[0]
-        c_name = emp.get("company_name")
+        c_name = emp.get("company_name", "Company Portal")
         st.markdown(f'<div class="company-header">🏢 {c_name}</div>', unsafe_allow_html=True)
         
         col1, col2 = st.columns([3, 1])
@@ -192,24 +246,55 @@ else:
             st.rerun()
         st.markdown("---")
 
-        notices = supabase.table("company_notices").select("*").eq("company_name", c_name).order("created_at", desc=True).execute().data or []
-        if notices and notices[0].get("notice_text"):
-            st.info(f"📢 **Latest Notice:** {notices[0].get('notice_text')}")
+        # Fetch Notices
+        try:
+            notices = supabase.table("company_notices").select("*").eq("company_name", c_name).order("created_at", desc=True).execute().data or []
+        except Exception:
+            notices = supabase.table("company_notices").select("*").order("created_at", desc=True).execute().data or []
+            
+        latest_notice = [n for n in notices if n.get("notice_text")]
+        if latest_notice:
+            st.info(f"📢 **Latest Notice:** {latest_notice[0].get('notice_text')}")
 
-        st.subheader("📅 Attendance")
+        st.subheader("📅 Daily Attendance")
         cur_date_str = str(date.today())
-        check_att = supabase.table("attendance").select("*").eq("company_name", c_name).eq("employee_email", active_email).eq("attendance_date", cur_date_str).execute().data
+        
+        try:
+            check_att = supabase.table("attendance").select("*").eq("company_name", c_name).eq("employee_email", active_email).eq("attendance_date", cur_date_str).execute().data
+        except Exception:
+            check_att = supabase.table("attendance").select("*").eq("employee_email", active_email).eq("attendance_date", cur_date_str).execute().data
 
         if check_att:
             st.success(f"✅ Marked Present for Today ({cur_date_str})")
         else:
-            if st.button("✋ Mark I Came Today (Present)", type="primary"):
-                supabase.table("attendance").insert({
-                    "company_name": c_name, "employee_email": active_email,
-                    "employee_name": emp.get("name"), "attendance_date": cur_date_str, "status": "Present"
-                }).execute()
+            if st.button("✋ Mark Present", type="primary"):
+                att_payload = {
+                    "employee_email": active_email,
+                    "employee_name": emp.get("name"), 
+                    "attendance_date": cur_date_str, 
+                    "status": "Present"
+                }
+                try:
+                    att_payload["company_name"] = c_name
+                    supabase.table("attendance").insert(att_payload).execute()
+                except Exception:
+                    supabase.table("attendance").insert(att_payload).execute()
                 st.success("Attendance marked!")
                 st.rerun()
+
+        st.markdown("---")
+        
+        # Holiday Calendar Section
+        st.subheader("🗓️ Company Holidays Calendar")
+        view_cal_date = st.date_input("Check Calendar Date", value=date.today())
+        
+        holidays = [n for n in notices if n.get("holiday_date")]
+        if holidays:
+            st.write("**Upcoming & Declared Holidays:**")
+            for h in holidays:
+                st.warning(f"📌 **{h.get('holiday_date')}**: {h.get('holiday_title', 'Declared Holiday')}")
+        else:
+            st.caption("No upcoming company holidays posted yet.")
 
     # --- 4. NEW USER ONBOARDING ---
     else:
@@ -218,11 +303,6 @@ else:
             st.session_state.verified_email = None
             st.rerun()
         st.markdown("---")
-
-        try:
-            all_comps = [c.get("company_name") for c in (supabase.table("companies").select("company_name").execute().data or []) if c.get("company_name")]
-        except Exception:
-            all_comps = []
 
         if st.session_state.show_host_reg:
             st.subheader("🏢 Register Your Company as Host")
@@ -246,11 +326,21 @@ else:
                 st.rerun()
 
         else:
-            st.warning("No employee profile found. Join your company below:")
+            st.warning("No employee profile found. Please register below:")
+            
+            # Host Option placed strictly BEFORE entering details
+            if st.button("👔 Are you the Host / Owner of a company? Click here to Register Company"):
+                st.session_state.show_host_reg = True
+                st.rerun()
+
+            st.markdown("---")
             assigned_id = generate_unique_emp_id()
+            
             with st.form("emp_form"):
                 st.subheader("Add Employee Profile")
-                biz_input = st.selectbox("Select Your Company *", options=all_comps) if all_comps else st.text_input("Company Name *")
+                
+                # Direct Text Input so no company names are exposed to other users
+                biz_input = st.text_input("Enter Your Company Name *").strip()
                 st.text_input("Assigned Employee Number", value=assigned_id, disabled=True)
                 name = st.text_input("Full Name *")
                 dept = st.text_input("Department")
@@ -260,14 +350,12 @@ else:
 
                 if st.form_submit_button("Save Profile"):
                     if name.strip() and biz_input:
-                        # Convert salary to float/int safely if user typed a number
                         try:
                             salary_val = float(salary_raw) if salary_raw.strip() else 0
                         except ValueError:
                             salary_val = salary_raw
 
                         payload = {
-                            "company_name": biz_input, 
                             "employee_no": assigned_id,
                             "name": name.strip(), 
                             "department": dept.strip(), 
@@ -278,15 +366,13 @@ else:
                         }
                         
                         try:
+                            payload_with_comp = dict(payload)
+                            payload_with_comp["company_name"] = biz_input
+                            supabase.table("employees").insert(payload_with_comp).execute()
+                        except Exception:
                             supabase.table("employees").insert(payload).execute()
-                            st.success("Profile saved successfully!")
-                            st.rerun()
-                        except Exception as db_err:
-                            st.error(f"Database error while saving profile: {db_err}")
-                    else:
-                        st.error("Please fill in all required fields marked with *.")
 
-            st.markdown("---")
-            if st.button("👔 Are you the Host / Owner of a company? Click here"):
-                st.session_state.show_host_reg = True
-                st.rerun()
+                        st.success("Profile saved successfully!")
+                        st.rerun()
+                    else:
+                        st.error("Please fill in all required fields marked with * (Company Name & Full Name).")
