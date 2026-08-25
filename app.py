@@ -35,6 +35,7 @@ st.markdown("""
 SUPABASE_URL = "https://tqxbeudrvkinuujojasx.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeGJldWRydmtpbnV1am9qYXN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NDQ5NzcsImV4cCI6MjEwMzEyMDk3N30.UC0UDV-vTsSnw8Ff2Jrp9DAfhhhpIkz1iY5eDtimU78 
 "
+
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 SUPER_ADMIN_EMAIL = "pardhukilli273@gmail.com"
