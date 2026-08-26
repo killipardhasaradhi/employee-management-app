@@ -506,5 +506,5 @@ else:
                         }).execute()
                         st.success("Profile saved successfully!")
                         st.rerun()
-    else:
-        st.error("Please fill in required fields marked with *.")
+                    else:
+                        st.error("Please fill in required fields marked with *.")
