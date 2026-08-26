@@ -37,8 +37,8 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 SUPER_ADMIN_EMAIL = "pardhukilli273@gmail.com"
-SENDER_EMAIL = "pardhukilli273@gmail.com"
-SENDER_PASSWORD = "fneh pjig gqum vtmv"
+SENDER_EMAIL = "psdigitalmanagementsystem@gmail.com"
+SENDER_PASSWORD = "vtny yryt ufig kelq"
 
 if "otp_sent" not in st.session_state: st.session_state.otp_sent = False
 if "generated_otp" not in st.session_state: st.session_state.generated_otp = None
