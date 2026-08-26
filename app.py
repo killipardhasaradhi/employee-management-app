@@ -44,8 +44,8 @@ st.markdown("""
 SUPABASE_URL = st.secrets.get("SUPABASE_URL", "https://tqxbeudrvkinuujojasx.supabase.co")
 SUPABASE_KEY = st.secrets.get("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeGJldWRydmtpbnV1am9qYXN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NDQ5NzcsImV4cCI6MjEwMzEyMDk3N30.UC0UDV-vTsSnw8Ff2Jrp9DAfhhhpIkz1iY5eDtimU78")
 SUPER_ADMIN_EMAIL = st.secrets.get("SUPER_ADMIN_EMAIL", "pardhukilli273@gmail.com")
-SENDER_EMAIL = st.secrets.get("SENDER_EMAIL", "psdigitalmanagementsystem@gmail.com")
-SENDER_PASSWORD = st.secrets.get("SENDER_PASSWORD", "mupy nzua qpak qods")
+SENDER_EMAIL = st.secrets.get("SENDER_EMAIL", "pardhukilli273@gmail.com")
+SENDER_PASSWORD = st.secrets.get("SENDER_PASSWORD", "fneh pjig gqum vtmv")
 
 if not SUPABASE_URL or not SUPABASE_KEY:
     st.error("⚠️ Missing Supabase credentials! Please configure Streamlit Secrets.")
