@@ -108,7 +108,7 @@ def generate_payslip_pdf(company_name, emp_name, emp_id, month, year, base_salar
     return buffer
 
 # ---------------------------------------------------------
-# STAGE 1: AUTHENTICATION (OTP LOGIC WITH TIMER & CHANGE EMAIL)
+# STAGE 1: AUTHENTICATION
 # ---------------------------------------------------------
 if not st.session_state.verified_email:
     st.title("📱 PS DIGITAL")
@@ -140,7 +140,6 @@ if not st.session_state.verified_email:
                 st.error("Invalid Code! Please try again.")
 
         st.markdown("---")
-        
         col_resend, col_change = st.columns(2)
 
         with col_resend:
@@ -218,8 +217,7 @@ else:
                             supabase.table(table).delete().eq("company_name", comp_to_remove).execute()
                         except Exception:
                             pass
-                    
-                    st.success(f"Company '{comp_to_remove}' and associated data removed successfully!")
+                    st.success(f"Company '{comp_to_remove}' removed successfully!")
                     st.rerun()
                 except Exception as err:
                     st.error(f"Failed to remove company: {err}")
@@ -344,12 +342,15 @@ else:
             if host_loc and host_loc.get("latitude"):
                 st.info(f"Captured Location: Latitude `{host_loc['latitude']}`, Longitude `{host_loc['longitude']}`")
                 if st.button("🔒 Save This Location as Shop GPS"):
-                    supabase.table("companies").update({
-                        "latitude": host_loc["latitude"],
-                        "longitude": host_loc["longitude"]
-                    }).eq("company_name", c_name).execute()
-                    st.success("Shop location fixed successfully!")
-                    st.rerun()
+                    try:
+                        supabase.table("companies").update({
+                            "latitude": host_loc["latitude"],
+                            "longitude": host_loc["longitude"]
+                        }).eq("company_name", c_name).execute()
+                        st.success("Shop location fixed successfully!")
+                        st.rerun()
+                    except Exception as err:
+                        st.error(f"Failed to update location in database: {err}")
 
         elif menu == "👥 Employee Directory":
             st.dataframe(supabase.table("employees").select("*").eq("company_name", c_name).execute().data or [])
@@ -357,15 +358,27 @@ else:
         elif menu == "📢 Post Notice":
             msg = st.text_area("Write Notice Message")
             if st.button("Publish Notice"):
-                supabase.table("company_notices").insert({"company_name": c_name, "notice_text": msg.strip()}).execute()
-                st.success("Notice published!")
+                if msg.strip():
+                    try:
+                        supabase.table("company_notices").insert({"company_name": c_name, "notice_text": msg.strip()}).execute()
+                        st.success("Notice published!")
+                    except Exception as err:
+                        st.error(f"Failed to publish notice: {err}")
+                else:
+                    st.warning("Please write a message before publishing.")
 
         elif menu == "📅 Declare Holiday":
             h_date = st.date_input("Holiday Date")
             h_title = st.text_input("Holiday Title / Reason")
             if st.button("Save Holiday"):
-                supabase.table("company_notices").insert({"company_name": c_name, "holiday_date": str(h_date), "holiday_title": h_title.strip()}).execute()
-                st.success("Holiday declared!")
+                if h_title.strip():
+                    try:
+                        supabase.table("company_notices").insert({"company_name": c_name, "holiday_date": str(h_date), "holiday_title": h_title.strip()}).execute()
+                        st.success("Holiday declared!")
+                    except Exception as err:
+                        st.error(f"Failed to declare holiday: {err}")
+                else:
+                    st.warning("Please provide a title or reason for the holiday.")
 
     # --- 3. EMPLOYEE DASHBOARD ---
     elif emp_records:
@@ -406,6 +419,25 @@ else:
                         st.write(f"Distance from shop: **{round(distance_meters, 1)} meters**")
                         if distance_meters <= 100:
                             if st.button("✋ Mark Present", type="primary"):
+                                try:
+                                    supabase.table("attendance").insert({
+                                        "company_name": c_name,
+                                        "employee_email": active_email,
+                                        "employee_name": emp.get("name"),
+                                        "attendance_date": cur_date_str,
+                                        "status": "Present",
+                                        "latitude": emp_loc["latitude"],
+                                        "longitude": emp_loc["longitude"]
+                                    }).execute()
+                                    st.success("Attendance marked successfully!")
+                                    st.rerun()
+                                except Exception as err:
+                                    st.error(f"Failed to record attendance: {err}")
+                        else:
+                            st.error("❌ You are too far from the shop location to mark attendance. You must be within 100 meters.")
+                    else:
+                        if st.button("✋ Mark Present", type="primary"):
+                            try:
                                 supabase.table("attendance").insert({
                                     "company_name": c_name,
                                     "employee_email": active_email,
@@ -415,23 +447,10 @@ else:
                                     "latitude": emp_loc["latitude"],
                                     "longitude": emp_loc["longitude"]
                                 }).execute()
-                                st.success("Attendance marked successfully!")
+                                st.success("Attendance marked!")
                                 st.rerun()
-                        else:
-                            st.error("❌ You are too far from the shop location to mark attendance. You must be within 100 meters.")
-                    else:
-                        if st.button("✋ Mark Present", type="primary"):
-                            supabase.table("attendance").insert({
-                                "company_name": c_name,
-                                "employee_email": active_email,
-                                "employee_name": emp.get("name"),
-                                "attendance_date": cur_date_str,
-                                "status": "Present",
-                                "latitude": emp_loc["latitude"],
-                                "longitude": emp_loc["longitude"]
-                            }).execute()
-                            st.success("Attendance marked!")
-                            st.rerun()
+                            except Exception as err:
+                                st.error(f"Failed to record attendance: {err}")
 
         elif emp_menu == "📝 Request Leave":
             st.subheader("Submit Leave Request")
@@ -439,15 +458,18 @@ else:
             l_reason = st.text_area("Reason for Leave")
             if st.button("Submit Request"):
                 if l_reason:
-                    supabase.table("leave_requests").insert({
-                        "company_name": c_name,
-                        "employee_email": active_email,
-                        "employee_name": emp.get("name"),
-                        "leave_date": str(l_date),
-                        "reason": l_reason,
-                        "status": "Pending"
-                    }).execute()
-                    st.success("Leave request submitted!")
+                    try:
+                        supabase.table("leave_requests").insert({
+                            "company_name": c_name,
+                            "employee_email": active_email,
+                            "employee_name": emp.get("name"),
+                            "leave_date": str(l_date),
+                            "reason": l_reason,
+                            "status": "Pending"
+                        }).execute()
+                        st.success("Leave request submitted!")
+                    except Exception as err:
+                        st.error(f"Failed to submit request: {err}")
                 else:
                     st.warning("Please provide a reason.")
             
@@ -494,7 +516,7 @@ else:
                             st.success("Company registered successfully!")
                             st.rerun()
                         except Exception as e:
-                            st.error("❌ Registration failed: Company name or email address is already registered.")
+                            st.error("❌ Registration failed: Company name or host email address is already registered.")
                     else:
                         st.warning("Please complete all required fields (*).")
 
