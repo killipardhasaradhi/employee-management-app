@@ -1,2 +1,6 @@
 streamlit
+pandas
 supabase
+streamlit-geolocation
+geopy
+reportlab
