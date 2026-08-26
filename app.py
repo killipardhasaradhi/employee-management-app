@@ -331,26 +331,33 @@ else:
             st.subheader("📍 Configure Official Shop / Office GPS Location")
             current_lat = comp.get("latitude")
             current_lng = comp.get("longitude")
+            
             if current_lat and current_lng:
                 st.success(f"Current Saved Location: Lat {current_lat}, Long {current_lng}")
             else:
                 st.warning("No location set yet! Employees can mark attendance from anywhere until you fix your shop location.")
             
-            st.write("Click below while physically inside your shop to capture and lock the location:")
+            st.write("👉 Click the location button below and allow browser location access when prompted:")
             host_loc = streamlit_geolocation()
             
-            if host_loc and host_loc.get("latitude"):
-                st.info(f"Captured Location: Latitude `{host_loc['latitude']}`, Longitude `{host_loc['longitude']}`")
-                if st.button("🔒 Save This Location as Shop GPS"):
+            if host_loc and host_loc.get("latitude") is not None and host_loc.get("longitude") is not None:
+                lat = float(host_loc["latitude"])
+                lng = float(host_loc["longitude"])
+                
+                st.info(f"📍 **Captured GPS Coordinates:** Latitude `{lat}`, Longitude `{lng}`")
+                
+                if st.button("🔒 Save This Location as Shop GPS", type="primary"):
                     try:
                         supabase.table("companies").update({
-                            "latitude": host_loc["latitude"],
-                            "longitude": host_loc["longitude"]
+                            "latitude": lat,
+                            "longitude": lng
                         }).eq("company_name", c_name).execute()
-                        st.success("Shop location fixed successfully!")
+                        st.success("Shop location saved successfully!")
                         st.rerun()
                     except Exception as err:
                         st.error(f"Failed to update location in database: {err}")
+            else:
+                st.caption("⏳ Waiting for GPS signal... Please click the location button above and grant location permissions.")
 
         elif menu == "👥 Employee Directory":
             st.dataframe(supabase.table("employees").select("*").eq("company_name", c_name).execute().data or [])
@@ -404,19 +411,26 @@ else:
             cur_date_str = str(date.today())
             
             check_att = supabase.table("attendance").select("*").eq("company_name", c_name).eq("employee_email", active_email).eq("attendance_date", cur_date_str).execute().data
+            
             if check_att:
                 st.success(f"✅ Marked Present for Today ({cur_date_str})")
             else:
-                st.info("📍 Fetching your current location... Please enable browser location permissions.")
+                st.write("📍 Please click the location button below to fetch your current GPS position:")
                 emp_loc = streamlit_geolocation()
-                if emp_loc and emp_loc.get("latitude"):
-                    user_coords = (emp_loc["latitude"], emp_loc["longitude"])
+                
+                if emp_loc and emp_loc.get("latitude") is not None and emp_loc.get("longitude") is not None:
+                    user_lat = float(emp_loc["latitude"])
+                    user_lng = float(emp_loc["longitude"])
+                    user_coords = (user_lat, user_lng)
                     
-                    if shop_lat and shop_lng:
-                        shop_coords = (shop_lat, shop_lng)
+                    st.info(f"Your Location: Lat `{round(user_lat, 6)}`, Long `{round(user_lng, 6)}`")
+                    
+                    if shop_lat is not None and shop_lng is not None:
+                        shop_coords = (float(shop_lat), float(shop_lng))
                         distance_meters = geodesic(user_coords, shop_coords).meters
                         
-                        st.write(f"Distance from shop: **{round(distance_meters, 1)} meters**")
+                        st.write(f"📏 Distance from shop: **{round(distance_meters, 1)} meters**")
+                        
                         if distance_meters <= 100:
                             if st.button("✋ Mark Present", type="primary"):
                                 try:
@@ -426,8 +440,8 @@ else:
                                         "employee_name": emp.get("name"),
                                         "attendance_date": cur_date_str,
                                         "status": "Present",
-                                        "latitude": emp_loc["latitude"],
-                                        "longitude": emp_loc["longitude"]
+                                        "latitude": user_lat,
+                                        "longitude": user_lng
                                     }).execute()
                                     st.success("Attendance marked successfully!")
                                     st.rerun()
@@ -436,6 +450,7 @@ else:
                         else:
                             st.error("❌ You are too far from the shop location to mark attendance. You must be within 100 meters.")
                     else:
+                        st.warning("⚠️ Host has not set the shop location yet. Marking attendance without distance check.")
                         if st.button("✋ Mark Present", type="primary"):
                             try:
                                 supabase.table("attendance").insert({
@@ -444,13 +459,15 @@ else:
                                     "employee_name": emp.get("name"),
                                     "attendance_date": cur_date_str,
                                     "status": "Present",
-                                    "latitude": emp_loc["latitude"],
-                                    "longitude": emp_loc["longitude"]
+                                    "latitude": user_lat,
+                                    "longitude": user_lng
                                 }).execute()
                                 st.success("Attendance marked!")
                                 st.rerun()
                             except Exception as err:
                                 st.error(f"Failed to record attendance: {err}")
+                else:
+                    st.warning("⚠️ GPS position not detected yet. Click the target icon above to allow location access.")
 
         elif emp_menu == "📝 Request Leave":
             st.subheader("Submit Leave Request")
