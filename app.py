@@ -414,6 +414,21 @@ else:
                                     "status": "Present",
                                     "latitude": emp_loc["latitude"],
                                     "longitude": emp_loc["longitude"]
+                                }).execute()
+                                st.success("Attendance marked successfully!")
+                                st.rerun()
+                        else:
+                            st.error("❌ You are too far from the shop location to mark attendance. You must be within 100 meters.")
+                    else:
+                        if st.button("✋ Mark Present", type="primary"):
+                            supabase.table("attendance").insert({
+                                "company_name": c_name,
+                                "employee_email": active_email,
+                                "employee_name": emp.get("name"),
+                                "attendance_date": cur_date_str,
+                                "status": "Present",
+                                "latitude": emp_loc["latitude"],
+                                "longitude": emp_loc["longitude"]
                             }).execute()
                             st.success("Attendance marked!")
                             st.rerun()
@@ -465,14 +480,24 @@ else:
                 new_c_name = st.text_input("Company / Shop Name *").strip()
                 h_name = st.text_input("Host Full Name *")
                 h_phone = st.text_input("Host Phone Number")
+                
                 if st.form_submit_button("Create Company & Become Host"):
                     if new_c_name and h_name:
-                        supabase.table("companies").insert({
-                            "company_name": new_c_name, "host_name": h_name,
-                            "host_email": active_email, "host_phone": h_phone
-                        }).execute()
-                        st.session_state.show_host_reg = False
-                        st.rerun()
+                        try:
+                            supabase.table("companies").insert({
+                                "company_name": new_c_name, 
+                                "host_name": h_name,
+                                "host_email": active_email, 
+                                "host_phone": h_phone
+                            }).execute()
+                            st.session_state.show_host_reg = False
+                            st.success("Company registered successfully!")
+                            st.rerun()
+                        except Exception as e:
+                            st.error("❌ Registration failed: Company name or email address is already registered.")
+                    else:
+                        st.warning("Please complete all required fields (*).")
+
             if st.button("⬅️ Back"):
                 st.session_state.show_host_reg = False
                 st.rerun()
@@ -495,16 +520,19 @@ else:
                 phone = st.text_input("Phone Number")
                 if st.form_submit_button("Save Profile"):
                     if name.strip() and biz_input:
-                        supabase.table("employees").insert({
-                            "employee_no": assigned_id,
-                            "company_name": biz_input,
-                            "name": name.strip(), 
-                            "department": dept.strip(), 
-                            "position": pos.strip(),
-                            "phone": phone.strip(), 
-                            "email": active_email
-                        }).execute()
-                        st.success("Profile saved successfully!")
-                        st.rerun()
+                        try:
+                            supabase.table("employees").insert({
+                                "employee_no": assigned_id,
+                                "company_name": biz_input,
+                                "name": name.strip(), 
+                                "department": dept.strip(), 
+                                "position": pos.strip(),
+                                "phone": phone.strip(), 
+                                "email": active_email
+                            }).execute()
+                            st.success("Profile saved successfully!")
+                            st.rerun()
+                        except Exception as e:
+                            st.error("❌ Registration failed: An employee profile with this email already exists.")
                     else:
                         st.error("Please fill in required fields marked with *.")
