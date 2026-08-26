@@ -413,4 +413,98 @@ else:
                                     "attendance_date": cur_date_str,
                                     "status": "Present",
                                     "latitude": emp_loc["latitude"],
-                                    "longitude
+                                    "longitude": emp_loc["longitude"]
+                            }).execute()
+                            st.success("Attendance marked!")
+                            st.rerun()
+
+        elif emp_menu == "📝 Request Leave":
+            st.subheader("Submit Leave Request")
+            l_date = st.date_input("Leave Date")
+            l_reason = st.text_area("Reason for Leave")
+            if st.button("Submit Request"):
+                if l_reason:
+                    supabase.table("leave_requests").insert({
+                        "company_name": c_name,
+                        "employee_email": active_email,
+                        "employee_name": emp.get("name"),
+                        "leave_date": str(l_date),
+                        "reason": l_reason,
+                        "status": "Pending"
+                    }).execute()
+                    st.success("Leave request submitted!")
+                else:
+                    st.warning("Please provide a reason.")
+            
+            st.markdown("---")
+            st.subheader("My Leave Status")
+            my_leaves = supabase.table("leave_requests").select("*").eq("company_name", c_name).eq("employee_email", active_email).execute().data or []
+            if my_leaves:
+                st.dataframe(my_leaves)
+
+        elif emp_menu == "📢 Notices & Holidays":
+            st.subheader("Company Notices")
+            notices = supabase.table("company_notices").select("*").eq("company_name", c_name).execute().data or []
+            for n in notices:
+                if n.get("notice_text"):
+                    st.info(f"📢 **Notice:** {n.get('notice_text')}")
+                if n.get("holiday_date"):
+                    st.success(f"📅 **Holiday on {n.get('holiday_date')}:** {n.get('holiday_title')}")
+
+    # --- 4. ONBOARDING (NEW USERS) ---
+    else:
+        st.title("📱 PS DIGITAL")
+        if st.button("Logout"):
+            st.session_state.verified_email = None
+            st.rerun()
+        st.markdown("---")
+        
+        if st.session_state.show_host_reg:
+            st.subheader("🏢 Register Your Company as Host")
+            with st.form("host_form"):
+                new_c_name = st.text_input("Company / Shop Name *").strip()
+                h_name = st.text_input("Host Full Name *")
+                h_phone = st.text_input("Host Phone Number")
+                if st.form_submit_button("Create Company & Become Host"):
+                    if new_c_name and h_name:
+                        supabase.table("companies").insert({
+                            "company_name": new_c_name, "host_name": h_name,
+                            "host_email": active_email, "host_phone": h_phone
+                        }).execute()
+                        st.session_state.show_host_reg = False
+                        st.rerun()
+            if st.button("⬅️ Back"):
+                st.session_state.show_host_reg = False
+                st.rerun()
+        else:
+            st.warning("No employee profile found. Please register below:")
+            
+            if st.button("👔 Are you the Host / Owner of a company? Click here to Register Company"):
+                st.session_state.show_host_reg = True
+                st.rerun()
+            st.markdown("---")
+            assigned_id = generate_unique_emp_id()
+            
+            with st.form("emp_form"):
+                st.subheader("Add Employee Profile")
+                biz_input = st.text_input("Enter Your Company Name *").strip()
+                st.text_input("Assigned Employee Number", value=assigned_id, disabled=True)
+                name = st.text_input("Full Name *")
+                dept = st.text_input("Department")
+                pos = st.text_input("Position")
+                phone = st.text_input("Phone Number")
+                if st.form_submit_button("Save Profile"):
+                    if name.strip() and biz_input:
+                        supabase.table("employees").insert({
+                            "employee_no": assigned_id,
+                            "company_name": biz_input,
+                            "name": name.strip(), 
+                            "department": dept.strip(), 
+                            "position": pos.strip(),
+                            "phone": phone.strip(), 
+                            "email": active_email
+                        }).execute()
+                        st.success("Profile saved successfully!")
+                        st.rerun()
+    else:
+        st.error("Please fill in required fields marked with *.")
