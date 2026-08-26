@@ -45,7 +45,7 @@ SUPABASE_URL = st.secrets.get("SUPABASE_URL", "https://tqxbeudrvkinuujojasx.supa
 SUPABASE_KEY = st.secrets.get("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeGJldWRydmtpbnV1am9qYXN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NDQ5NzcsImV4cCI6MjEwMzEyMDk3N30.UC0UDV-vTsSnw8Ff2Jrp9DAfhhhpIkz1iY5eDtimU78")
 SUPER_ADMIN_EMAIL = st.secrets.get("SUPER_ADMIN_EMAIL", "pardhukilli273@gmail.com")
 SENDER_EMAIL = st.secrets.get("SENDER_EMAIL", "psdigitalmanagementsystem@gmail.com")
-SENDER_PASSWORD = st.secrets.get("SENDER_PASSWORD", "vtny yryt ufig kelq")
+SENDER_PASSWORD = st.secrets.get("SENDER_PASSWORD", "mupy nzua qpak qods")
 
 if not SUPABASE_URL or not SUPABASE_KEY:
     st.error("⚠️ Missing Supabase credentials! Please configure Streamlit Secrets.")
@@ -56,7 +56,7 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 # ---------------------------------------------------------
 # SESSION STATE INITIALIZATION
 # ---------------------------------------------------------
-for key in ["otp_sent", "generated_otp", "verified_email", "show_host_reg", "show_attendance_list"]:
+for key in ["otp_sent", "generated_otp", "verified_email", "show_host_reg", "show_attendance_list", "last_otp_time"]:
     if key not in st.session_state:
         st.session_state[key] = False
 
@@ -108,33 +108,63 @@ def generate_payslip_pdf(company_name, emp_name, emp_id, month, year, base_salar
     return buffer
 
 # ---------------------------------------------------------
-# STAGE 1: AUTHENTICATION (OTP LOGIC)
+# STAGE 1: AUTHENTICATION (OTP LOGIC WITH TIMER & CHANGE EMAIL)
 # ---------------------------------------------------------
 if not st.session_state.verified_email:
     st.title("📱 PS DIGITAL")
     st.caption("ENTERPRISE MULTI-HOST MANAGEMENT & ATTENDANCE SYSTEM")
-    user_email = st.text_input("Enter Email Address to Access Portal").strip().lower()
-    
-    if user_email and not st.session_state.otp_sent:
-        if st.button("Send Verification Code"):
-            otp = str(random.randint(100000, 999999))
-            if send_otp_email(user_email, otp):
-                st.session_state.generated_otp = otp
-                st.session_state.otp_sent = True
-                st.session_state.temp_email = user_email
-                st.success(f"Verification code sent to {user_email}!")
-                st.rerun()
 
-    if st.session_state.otp_sent:
+    if not st.session_state.otp_sent:
+        user_email = st.text_input("Enter Email Address to Access Portal").strip().lower()
+        
+        if user_email:
+            if st.button("Send Verification Code", type="primary"):
+                otp = str(random.randint(100000, 999999))
+                if send_otp_email(user_email, otp):
+                    st.session_state.generated_otp = otp
+                    st.session_state.otp_sent = True
+                    st.session_state.temp_email = user_email
+                    st.session_state.last_otp_time = datetime.now()
+                    st.success(f"Verification code sent to {user_email}!")
+                    st.rerun()
+    else:
         st.info(f"Enter the 6-digit code sent to **{st.session_state.temp_email}**")
         input_otp = st.text_input("6-Digit Verification Code", max_chars=6)
-        if st.button("Verify & Login"):
+        
+        if st.button("Verify & Login", type="primary"):
             if input_otp == st.session_state.generated_otp:
                 st.session_state.verified_email = st.session_state.temp_email
                 st.session_state.otp_sent = False
                 st.rerun()
             else:
-                st.error("Invalid Code!")
+                st.error("Invalid Code! Please try again.")
+
+        st.markdown("---")
+        
+        col_resend, col_change = st.columns(2)
+
+        with col_resend:
+            time_elapsed = (datetime.now() - st.session_state.last_otp_time).seconds if st.session_state.last_otp_time else 60
+            cooldown = 60 - time_elapsed
+
+            if cooldown > 0:
+                st.button(f"⏳ Resend in {cooldown}s", disabled=True)
+            else:
+                if st.button("🔄 Resend Code"):
+                    new_otp = str(random.randint(100000, 999999))
+                    if send_otp_email(st.session_state.temp_email, new_otp):
+                        st.session_state.generated_otp = new_otp
+                        st.session_state.last_otp_time = datetime.now()
+                        st.success("A new code has been sent!")
+                        st.rerun()
+
+        with col_change:
+            if st.button("✏️ Change Email"):
+                st.session_state.otp_sent = False
+                st.session_state.generated_otp = None
+                st.session_state.temp_email = None
+                st.session_state.last_otp_time = None
+                st.rerun()
 
 # ---------------------------------------------------------
 # STAGE 2: APPLICATION ROUTING
@@ -383,111 +413,4 @@ else:
                                     "attendance_date": cur_date_str,
                                     "status": "Present",
                                     "latitude": emp_loc["latitude"],
-                                    "longitude": emp_loc["longitude"]
-                                }).execute()
-                                st.success("Attendance marked successfully!")
-                                st.rerun()
-                        else:
-                            st.error("❌ You are too far from the shop location to mark attendance. You must be within 100 meters.")
-                    else:
-                        if st.button("✋ Mark Present", type="primary"):
-                            supabase.table("attendance").insert({
-                                "company_name": c_name,
-                                "employee_email": active_email,
-                                "employee_name": emp.get("name"),
-                                "attendance_date": cur_date_str,
-                                "status": "Present",
-                                "latitude": emp_loc["latitude"],
-                                "longitude": emp_loc["longitude"]
-                            }).execute()
-                            st.success("Attendance marked!")
-                            st.rerun()
-
-        elif emp_menu == "📝 Request Leave":
-            st.subheader("Submit Leave Request")
-            l_date = st.date_input("Leave Date")
-            l_reason = st.text_area("Reason for Leave")
-            if st.button("Submit Request"):
-                if l_reason:
-                    supabase.table("leave_requests").insert({
-                        "company_name": c_name,
-                        "employee_email": active_email,
-                        "employee_name": emp.get("name"),
-                        "leave_date": str(l_date),
-                        "reason": l_reason,
-                        "status": "Pending"
-                    }).execute()
-                    st.success("Leave request submitted!")
-                else:
-                    st.warning("Please provide a reason.")
-            
-            st.markdown("---")
-            st.subheader("My Leave Status")
-            my_leaves = supabase.table("leave_requests").select("*").eq("company_name", c_name).eq("employee_email", active_email).execute().data or []
-            if my_leaves:
-                st.dataframe(my_leaves)
-        elif emp_menu == "📢 Notices & Holidays":
-            st.subheader("Company Notices")
-            notices = supabase.table("company_notices").select("*").eq("company_name", c_name).execute().data or []
-            for n in notices:
-                if n.get("notice_text"):
-                    st.info(f"📢 **Notice:** {n.get('notice_text')}")
-                if n.get("holiday_date"):
-                    st.success(f"📅 **Holiday on {n.get('holiday_date')}:** {n.get('holiday_title')}")
-    # --- 4. ONBOARDING (NEW USERS) ---
-    else:
-        st.title("📱 PS DIGITAL")
-        if st.button("Logout"):
-            st.session_state.verified_email = None
-            st.rerun()
-        st.markdown("---")
-        
-        if st.session_state.show_host_reg:
-            st.subheader("🏢 Register Your Company as Host")
-            with st.form("host_form"):
-                new_c_name = st.text_input("Company / Shop Name *").strip()
-                h_name = st.text_input("Host Full Name *")
-                h_phone = st.text_input("Host Phone Number")
-                if st.form_submit_button("Create Company & Become Host"):
-                    if new_c_name and h_name:
-                        supabase.table("companies").insert({
-                            "company_name": new_c_name, "host_name": h_name,
-                            "host_email": active_email, "host_phone": h_phone
-                        }).execute()
-                        st.session_state.show_host_reg = False
-                        st.rerun()
-            if st.button("⬅️ Back"):
-                st.session_state.show_host_reg = False
-                st.rerun()
-        else:
-            st.warning("No employee profile found. Please register below:")
-            
-            if st.button("👔 Are you the Host / Owner of a company? Click here to Register Company"):
-                st.session_state.show_host_reg = True
-                st.rerun()
-            st.markdown("---")
-            assigned_id = generate_unique_emp_id()
-            
-            with st.form("emp_form"):
-                st.subheader("Add Employee Profile")
-                biz_input = st.text_input("Enter Your Company Name *").strip()
-                st.text_input("Assigned Employee Number", value=assigned_id, disabled=True)
-                name = st.text_input("Full Name *")
-                dept = st.text_input("Department")
-                pos = st.text_input("Position")
-                phone = st.text_input("Phone Number")
-                if st.form_submit_button("Save Profile"):
-                    if name.strip() and biz_input:
-                        supabase.table("employees").insert({
-                            "employee_no": assigned_id,
-                            "company_name": biz_input,
-                            "name": name.strip(), 
-                            "department": dept.strip(), 
-                            "position": pos.strip(),
-                            "phone": phone.strip(), 
-                            "email": active_email
-                        }).execute()
-                        st.success("Profile saved successfully!")
-                        st.rerun()
-                    else:
-                        st.error("Please fill in required fields marked with *.")
+                                    "longitude
