@@ -36,7 +36,7 @@ st.markdown("""
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
-        height: 0px !important;
+        height: 0 !important;
     }
 
     /* 2. BACKGROUND & GLOBAL FONTS */
