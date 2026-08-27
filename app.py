@@ -20,49 +20,77 @@ from reportlab.lib import colors
 # ---------------------------------------------------------
 st.set_page_config(page_title="PS DIGITAL Enterprise", page_icon="📱", layout="centered")
 st.markdown("""
+st.markdown("""
     <style>
-    /* Hide top menu header, toolbar, and footer */
-    #MainMenu, header, footer, [data-testid="stHeader"], [data-testid="stSidebar"],
-    div[data-testid="stToolbar"], div[data-testid="stDecoration"], div[data-testid="stStatusWidget"],
-    div[data-testid="stAppViewerHost"], [data-testid="manage-app-button"] {
-        display: none !important; 
-        visibility: hidden !important;
-    }
-
-    /* Hide the Streamlit Community Cloud 'Manage app' button and bottom toolbar */
-    .viewerBadge_container__1QSob, 
-    .styles_viewerBadge__1yB5_, 
-    [data-testid="stAppViewBlockContainer"] + div,
-    footer + div,
-    iframe + div {
+    /* 1. HIDE TOP BAR, FOOTER, MENU, AND FLOATING BADGES */
+    #MainMenu, header, footer, 
+    [data-testid="stHeader"], 
+    [data-testid="stSidebar"],
+    [data-testid="stToolbar"], 
+    [data-testid="stDecoration"], 
+    [data-testid="stStatusWidget"],
+    [data-testid="stAppViewerHost"], 
+    [data-testid="manage-app-button"],
+    [class*="viewerBadge"],
+    [class*="profileImageContainer"] {
         display: none !important;
         visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0px !important;
     }
 
-    /* Fix container padding */
-    .main .block-container { 
-        padding-top: 1rem !important; 
-        padding-bottom: 1rem !important; 
+    /* 2. BACKGROUND & GLOBAL FONTS */
+    .stApp {
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
 
-    /* Header styling */
+    .main .block-container {
+        padding-top: 2rem !important;
+        padding-bottom: 1rem !important;
+        max-width: 500px !important;
+    }
+
+    /* 3. BRAND HEADER CARD */
     .company-header {
-        background: linear-gradient(135deg, #FF512F 0%, #DD2476 100%);
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
         color: #FFFFFF; 
-        padding: 16px 24px; 
-        border-radius: 12px;
+        padding: 22px 20px; 
+        border-radius: 20px;
         text-align: center; 
-        font-family: 'Trebuchet MS', sans-serif;
-        font-size: 26px; 
+        font-size: 24px; 
         font-weight: 800; 
-        letter-spacing: 1px;
-        box-shadow: 0px 4px 15px rgba(221, 36, 118, 0.35);
-        margin-top: 10px; 
-        margin-bottom: 20px; 
+        letter-spacing: 1.5px;
+        box-shadow: 0px 10px 25px rgba(168, 85, 247, 0.4);
+        margin-bottom: 25px; 
         text-transform: uppercase;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* 4. INPUT FIELDS */
+    .stTextInput input, .stSelectbox > div > div, .stNumberInput input, .stTextArea textarea {
+        background-color: rgba(30, 41, 59, 0.7) !important;
+        color: #f8fafc !important;
+        border: 1.5px solid rgba(99, 102, 241, 0.4) !important;
+        border-radius: 12px !important;
+        padding: 12px 16px !important;
+    }
+
+    /* 5. BUTTONS */
+    .stButton > button {
+        width: 100%;
+        background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%) !important;
+        color: #ffffff !important;
+        border: none !important;
+        padding: 14px 24px !important;
+        font-size: 16px !important;
+        font-weight: 700 !important;
+        border-radius: 14px !important;
+        box-shadow: 0px 6px 20px rgba(124, 58, 237, 0.35) !important;
     }
     </style>
 """, unsafe_allow_html=True)
+
 
 
 # ---------------------------------------------------------
