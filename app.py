@@ -20,9 +20,8 @@ from reportlab.lib import colors
 # ---------------------------------------------------------
 st.set_page_config(page_title="PS DIGITAL Enterprise", page_icon="📱", layout="centered")
 st.markdown("""
-st.markdown("""
     <style>
-    /* 1. HIDE TOP BAR, FOOTER, MENU, AND FLOATING BADGES */
+    /* 1. HIDE DEFAULT UI */
     #MainMenu, header, footer, 
     [data-testid="stHeader"], 
     [data-testid="stSidebar"],
@@ -90,6 +89,8 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
+
 
 
 
