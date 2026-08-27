@@ -21,22 +21,49 @@ from reportlab.lib import colors
 st.set_page_config(page_title="PS DIGITAL Enterprise", page_icon="📱", layout="centered")
 st.markdown("""
     <style>
+    /* Hide top menu header, toolbar, and footer */
     #MainMenu, header, footer, [data-testid="stHeader"], [data-testid="stSidebar"],
     div[data-testid="stToolbar"], div[data-testid="stDecoration"], div[data-testid="stStatusWidget"],
     div[data-testid="stAppViewerHost"], [data-testid="manage-app-button"] {
-        display: none !important; visibility: hidden !important;
+        display: none !important; 
+        visibility: hidden !important;
     }
-    .main .block-container { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+
+    /* Hide the Streamlit Community Cloud 'Manage app' button and bottom toolbar */
+    .viewerBadge_container__1QSob, 
+    .styles_viewerBadge__1yB5_, 
+    [data-testid="stAppViewBlockContainer"] + div,
+    footer + div,
+    iframe + div {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* Fix container padding */
+    .main .block-container { 
+        padding-top: 1rem !important; 
+        padding-bottom: 1rem !important; 
+    }
+
+    /* Header styling */
     .company-header {
         background: linear-gradient(135deg, #FF512F 0%, #DD2476 100%);
-        color: #FFFFFF; padding: 16px 24px; border-radius: 12px;
-        text-align: center; font-family: 'Trebuchet MS', sans-serif;
-        font-size: 26px; font-weight: 800; letter-spacing: 1px;
+        color: #FFFFFF; 
+        padding: 16px 24px; 
+        border-radius: 12px;
+        text-align: center; 
+        font-family: 'Trebuchet MS', sans-serif;
+        font-size: 26px; 
+        font-weight: 800; 
+        letter-spacing: 1px;
         box-shadow: 0px 4px 15px rgba(221, 36, 118, 0.35);
-        margin-top: 10px; margin-bottom: 20px; text-transform: uppercase;
+        margin-top: 10px; 
+        margin-bottom: 20px; 
+        text-transform: uppercase;
     }
     </style>
 """, unsafe_allow_html=True)
+
 
 # ---------------------------------------------------------
 # ENVIRONMENT & SECRETS CONFIGURATION
