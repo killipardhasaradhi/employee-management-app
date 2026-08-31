@@ -119,9 +119,9 @@ def generate_unique_emp_id():
 # ---------------------------------------------------------
 if not st.session_state.verified_email:
     st.markdown("""<div class="main-header">📱 PS DIGITAL</div>""", unsafe_allow_html=True)
-    st.caption("ENTERPRISE MULTI-HOST MANAGEMENT & ATTENDANCE SYSTEM")
-    user_email = st.text_input("Enter Email Address to Access Portal").strip().lower()
-
+    st.caption("**ENTERPRISE MULTI-HOST MANAGEMENT & ATTENDANCE SYSTEM**")
+    st.markdown("**Enter Email Address to Access Portal**")
+    user_email = st.text_input("Enter Email Address to Access Portal", label_visibility="collapsed").strip().lower()
     if user_email and not st.session_state.otp_sent:
         if st.button("Send Verification Code", use_container_width=True):
             otp = str(random.randint(100000, 999999))
