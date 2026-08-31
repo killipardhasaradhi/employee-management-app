@@ -426,7 +426,7 @@ else:
             if notice_list:
                 for item in notice_list:
                     st.info(f"• {item.get('notice_text')}")
-    else:
+            else:
                 st.caption("No notices posted.")
 
         # 4. Holidays
@@ -438,6 +438,7 @@ else:
                     st.warning(f"📌 **{h.get('holiday_date')}**: {h.get('holiday_title', 'Holiday')}")
             else:
                 st.caption("No upcoming company holidays listed.")
+
 
     # =========================================================
     # 4. NEW USER ONBOARDING
