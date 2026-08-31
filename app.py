@@ -59,7 +59,8 @@ SENDER_EMAIL = "pardhukilli273@gmail.com"
 SENDER_PASSWORD = "fneh pjig gqum vtmv"
 
 for key in ["otp_sent", "generated_otp", "verified_email", "show_host_reg", "show_attendance_list", "emp_coords"]:
-    if key not in st.session_state: st.session_state[key] = False
+    if key not in st.session_state:
+        st.session_state[key] = False
 
 def send_otp_email(target_email, otp_code):
     try:
@@ -83,7 +84,7 @@ def generate_unique_emp_id():
 # STAGE 1: LOGIN & OTP VERIFICATION
 # ---------------------------------------------------------
 if not st.session_state.verified_email:
-    st.markdown('<div class="main-header">📱 PS DIGITAL</div>', unsafe_allow_html=True)
+    st.markdown("""<div class="main-header">📱 PS DIGITAL</div>""", unsafe_allow_html=True)
     st.caption("ENTERPRISE MULTI-HOST MANAGEMENT & ATTENDANCE SYSTEM")
     user_email = st.text_input("Enter Email Address to Access Portal").strip().lower()
 
@@ -129,7 +130,7 @@ else:
     # 1. SUPER ADMIN DASHBOARD
     # =========================================================
     if active_email == SUPER_ADMIN_EMAIL:
-        st.markdown('<div class="main-header">👑 Super Admin Portal</div>', unsafe_allow_html=True)
+        st.markdown("""<div class="main-header">👑 Super Admin Portal</div>""", unsafe_allow_html=True)
         
         c1, c2 = st.columns([3, 1])
         c1.write(f"Logged in as: **{SUPER_ADMIN_EMAIL}**")
@@ -151,13 +152,14 @@ else:
         emp_counts = {}
         for emp in employees:
             cn = emp.get("company_name")
-            if cn: emp_counts[cn] = emp_counts.get(cn, 0) + 1
+            if cn:
+                emp_counts[cn] = emp_counts.get(cn, 0) + 1
 
         for comp in companies:
             comp["employee_count"] = emp_counts.get(comp.get("company_name"), 0)
 
         if admin_menu.startswith("1."):
-            st.markdown('<div class="hero-card"><h3> Welcome, System Super Admin</h3><p>Manage enterprise clients, system data, and company removal from this hub.</p></div>', unsafe_allow_html=True)
+            st.markdown("""<div class="hero-card"><h3> Welcome, System Super Admin</h3><p>Manage enterprise clients, system data, and company removal from this hub.</p></div>""", unsafe_allow_html=True)
             col_a, col_b = st.columns(2)
             col_a.metric("Total Companies", len(companies))
             col_b.metric("Total Platform Users", len(employees))
@@ -174,12 +176,18 @@ else:
                 if st.button("❌ Permanently Remove Company", type="primary", use_container_width=True):
                     try:
                         supabase.table("companies").delete().eq("company_name", comp_to_remove).execute()
-                        try: supabase.table("employees").delete().eq("company_name", comp_to_remove).execute()
-                        except Exception: pass
-                        try: supabase.table("attendance").delete().eq("company_name", comp_to_remove).execute()
-                        except Exception: pass
-                        try: supabase.table("company_notices").delete().eq("company_name", comp_to_remove).execute()
-                        except Exception: pass
+                        try:
+                            supabase.table("employees").delete().eq("company_name", comp_to_remove).execute()
+                        except Exception:
+                            pass
+                        try:
+                            supabase.table("attendance").delete().eq("company_name", comp_to_remove).execute()
+                        except Exception:
+                            pass
+                        try:
+                            supabase.table("company_notices").delete().eq("company_name", comp_to_remove).execute()
+                        except Exception:
+                            pass
                         st.success(f"Company '{comp_to_remove}' and associated data removed!")
                         st.rerun()
                     except Exception as err:
@@ -193,7 +201,7 @@ else:
     elif host_check:
         comp = host_check[0]
         c_name = comp.get("company_name", "Company Portal")
-        st.markdown(f'<div class="main-header">🏢 {c_name}</div>', unsafe_allow_html=True)
+        st.markdown(f"""<div class="main-header">🏢 {c_name}</div>""", unsafe_allow_html=True)
         
         c1, c2 = st.columns([3, 1])
         c1.write(f"Host: **{comp.get('host_name')}**")
@@ -213,12 +221,12 @@ else:
 
         # 1. Host Home
         if host_menu.startswith("1."):
-            st.markdown(f'''
+            st.markdown(f"""
                 <div class="hero-card">
                     <h3>🏢 {c_name} Host Workspace</h3>
                     <p>Use the navigation menu above to check attendance, set up company GPS boundaries, and issue notices.</p>
                 </div>
-            ''', unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
             
             emps = supabase.table("employees").select("*").eq("company_name", c_name).execute().data or []
             today_att = supabase.table("attendance").select("*").eq("company_name", c_name).eq("attendance_date", str(date.today())).execute().data or []
@@ -255,9 +263,11 @@ else:
             
             if st.session_state.show_attendance_list:
                 st.write("### ✅ Present Staff")
-                for e in present_list: st.write(f"• **{e.get('name')}** ({e.get('email')})")
+                for e in present_list:
+                    st.write(f"• **{e.get('name')}** ({e.get('email')})")
                 st.write("### ❌ Absent Staff")
-                for e in absent_list: st.write(f"• **{e.get('name')}** ({e.get('email')})")
+                for e in absent_list:
+                    st.write(f"• **{e.get('name')}** ({e.get('email')})")
 
         # 3. Fix Location
         elif host_menu.startswith("3."):
@@ -318,7 +328,7 @@ else:
     elif emp_records:
         emp = emp_records[0]
         c_name = emp.get("company_name", "Company Portal")
-        st.markdown(f'<div class="main-header">🏢 {c_name}</div>', unsafe_allow_html=True)
+        st.markdown(f"""<div class="main-header">🏢 {c_name}</div>""", unsafe_allow_html=True)
         
         c1, c2 = st.columns([3, 1])
         c1.write(f"Logged in: **{emp.get('name')}**")
@@ -346,12 +356,12 @@ else:
 
         # 1. Home & Attendance
         if emp_menu.startswith("1."):
-            st.markdown(f'''
+            st.markdown(f"""
                 <div class="hero-card">
                     <h3>Welcome back, {emp.get("name")}!</h3>
                     <p>Department: <b>{emp.get("department", "General")}</b> | Employee No: <b>{emp.get("employee_no")}</b></p>
                 </div>
-            ''', unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
 
             latest_notice = [n for n in notices if n.get("notice_text")]
             if latest_notice:
@@ -414,7 +424,8 @@ else:
                 u_lat, u_lng = st.session_state.emp_coords
                 st.markdown(f"🗺️ [**Open Position in Google Maps App**](https://www.google.com/maps?q={u_lat},{u_lng})")
                 pts = [{'lat': u_lat, 'lon': u_lng}]
-                if comp_lat and comp_lng: pts.append({'lat': comp_lat, 'lon': comp_lng})
+                if comp_lat and comp_lng:
+                    pts.append({'lat': comp_lat, 'lon': comp_lng})
                 st.map(pd.DataFrame(pts), zoom=15)
             else:
                 st.info("Capture your location on the Home page to view map details.")
@@ -429,7 +440,7 @@ else:
             else:
                 st.caption("No notices posted.")
 
-        # 4. Holidays
+# 4. Holidays
         elif emp_menu.startswith("4."):
             st.subheader("🗓️ Holidays Calendar")
             holidays = [n for n in notices if n.get("holiday_date")]
@@ -439,11 +450,11 @@ else:
             else:
                 st.caption("No upcoming company holidays listed.")
 
-
     # =========================================================
     # 4. NEW USER ONBOARDING
-    # =========================================================
-            else:st.markdown('<div class="main-header">📱 PS DIGITAL</div>', unsafe_allow_html=True)
+    # =========================================================    
+        else:
+        st.markdown("""<div class="main-header">📱 PS DIGITAL</div>""", unsafe_allow_html=True)
         if st.button("Logout"):
             st.session_state.verified_email = None
             st.rerun()
