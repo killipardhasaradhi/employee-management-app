@@ -452,12 +452,12 @@ else:
 
     # =========================================================
     # 4. NEW USER ONBOARDING
-    # =========================================================    
-        else:
-        st.markdown("""<div class="main-header">📱 PS DIGITAL</div>""", unsafe_allow_html=True)
-        if st.button("Logout"):
-            st.session_state.verified_email = None
-            st.rerun()
+    # =========================================================
+    else:
+    st.markdown("""<div class="main-header">📱 PS DIGITAL</div>""", unsafe_allow_html=True)
+    if st.button("Logout"):
+        st.session_state.verified_email = None
+        st.rerun()
         st.markdown("---")
 
         if st.session_state.show_host_reg:
