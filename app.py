@@ -22,31 +22,65 @@ st.markdown("""
     }
     .main .block-container { padding-top: 1rem !important; padding-bottom: 2rem !important; }
     
+    /* Main Header Banner */
     .main-header {
         background: linear-gradient(135deg, #FF512F 0%, #DD2476 100%);
-        color: #FFFFFF; padding: 20px; border-radius: 14px;
+        color: #FFFFFF !important; padding: 20px; border-radius: 14px;
         text-align: center; font-family: 'Trebuchet MS', sans-serif;
         font-size: 26px; font-weight: 800; letter-spacing: 1px;
         box-shadow: 0px 4px 15px rgba(221, 36, 118, 0.3);
         margin-bottom: 20px; text-transform: uppercase;
     }
+
+    /* Input Field & Caption High Contrast Fixes */
+    div[data-testid="stCaptionContainer"] {
+        color: #1E293B !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.5px;
+    }
+
+    label, p, span, h1, h2, h3, h4, h5, h6 {
+        color: #0F172A !important;
+    }
+
+    /* Style Text Inputs for High Legibility */
+    div[data-baseweb="input"] {
+        background-color: #F1F5F9 !important;
+        border: 2px solid #CBD5E1 !important;
+        border-radius: 8px !important;
+    }
     
+    input {
+        color: #0F172A !important;
+        font-weight: 600 !important;
+    }
+
+    /* Custom Cards */
     .hero-card {
-        background-color: #f8f9fa;
+        background-color: #F8FAFC !important;
+        color: #0F172A !important;
         border-left: 6px solid #DD2476;
         padding: 18px; border-radius: 8px;
         margin-bottom: 15px;
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    .hero-card h3, .hero-card p, .hero-card b {
+        color: #0F172A !important;
     }
     
     .location-box {
-        background-color: #eef2f7;
-        border: 2px dashed #4A90E2;
+        background-color: #EFF6FF !important;
+        color: #1E3A8A !important;
+        border: 2px dashed #3B82F6;
         padding: 20px; border-radius: 12px;
         text-align: center; margin-top: 10px; margin-bottom: 15px;
     }
+    .location-box h4, .location-box p {
+        color: #1E3A8A !important;
+    }
     </style>
 """, unsafe_allow_html=True)
-
+    
 # ---------------------------------------------------------
 # CREDENTIALS CONFIGURATION
 # ---------------------------------------------------------
