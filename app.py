@@ -55,17 +55,26 @@ st.markdown("""
         font-weight: 600 !important;
     }
 
-    /* Custom Cards */
+    /* Hero Card Text & Titles */
     .hero-card {
         background-color: #F8FAFC !important;
-        color: #0F172A !important;
-        border-left: 6px solid #DD2476;
-        padding: 18px; border-radius: 8px;
+        border-left: 5px solid #DD2476;
+        padding: 16px; 
+        border-radius: 8px;
         margin-bottom: 15px;
-        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+        box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
     }
-    .hero-card h3, .hero-card p, .hero-card b {
-        color: #0F172A !important;
+
+    .hero-card, .hero-card h3, .hero-card p, .hero-card b {
+        color: #000000 !important;
+        font-weight: 800 !important;
+    }
+    
+    /* Dashboard Metrics & Labels */
+    [data-testid="stMetricLabel"] p, 
+    [data-testid="stMetricValue"] div {
+        color: #000000 !important;
+        font-weight: 800 !important;
     }
     
     .location-box {
