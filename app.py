@@ -506,7 +506,7 @@ else:
         if st.session_state.show_host_reg:
             st.subheader("🏢 Register Company Profile")
             with st.form("host_form"):
-                new_c_name = st.text_input("Company Name *").strip()
+                new_c_name = st.text_input("Company Name *").strip().upper()
                 h_name = st.text_input("Host Name *")
                 h_phone = st.text_input("Phone Number")
                 if st.form_submit_button("Register Company Host Profile"):
@@ -533,7 +533,7 @@ else:
             
             with st.form("emp_form"):
                 st.subheader("Add Employee Profile")
-                biz_input = st.text_input("Company Name *").strip()
+                biz_input = st.text_input("Company Name *").strip().upper()
                 st.text_input("Assigned Employee ID", value=assigned_id, disabled=True)
                 name = st.text_input("Full Name *")
                 dept = st.text_input("Department")
