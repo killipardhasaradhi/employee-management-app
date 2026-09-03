@@ -205,7 +205,7 @@ for k in SESSION_KEYS:
         st.session_state[k] = False
 def send_otp_email(target_email, otp_code):
        try;
-        msg = MIMEText(f"Your verification code for PS DIGITAL Platform is: {otp_code}")
+        msg = MIMEtext(f"Your verification code for PS DIGITAL Platform is: {otp_code}")
         msg['Subject'] = 'PS DIGITAL - Email Verification Code'
         msg['From'] = SENDER_EMAIL
         msg['To'] = target_email
