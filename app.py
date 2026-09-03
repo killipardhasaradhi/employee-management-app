@@ -203,7 +203,6 @@ SESSION_KEYS = ["otp_sent", "generated_otp", "verified_email", "show_host_reg", 
 for k in SESSION_KEYS:
     if k not in st.session_state:
         st.session_state[k] = False
-
 def send_otp_email(target_email, otp_code):
     try:
         msg = MIMEText(f"Your verification code for PS DIGITAL Platform is: {otp_code}")
