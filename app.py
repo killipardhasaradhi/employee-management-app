@@ -199,9 +199,10 @@ SUPER_ADMIN_EMAIL = "pardhukilli273@gmail.com"
 SENDER_EMAIL = "pardhukilli273@gmail.com"
 SENDER_PASSWORD = "fneh pjig gqum vtmv"
 
-for key in ["otp_sent", "generated_otp", "verified_email", "show_host_reg", "show_attendance_list", "emp_coords"]:
-    if key not in st.session_state:
-        st.session_state[key] = False
+SESSION_KEYS = ["otp_sent", "generated_otp", "verified_email", "show_host_reg", "show_attendance_list", "emp_coords"]
+for k in SESSION_KEYS:
+    if k not in st.session_state:
+        st.session_state[k] = False
 
 def send_otp_email(target_email, otp_code):
     try:
