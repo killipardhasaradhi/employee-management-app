@@ -214,9 +214,9 @@ def send_otp_email(target_email, otp_code):
         server.sendmail(SENDER_EMAIL, target_email, msg.as_string())
         server.quit()
         return True
-finally:
-        st.error(f"Error sending email: {e}")
-        return False
+       finally:
+         st.error(f"Error sending email: {e}")
+         return False
 
 def generate_unique_emp_id():
     return str(random.randint(1001, 9999))
