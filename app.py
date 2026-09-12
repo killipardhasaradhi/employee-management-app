@@ -288,8 +288,8 @@ else:
 
         admin_nav = st.radio("", ["DASHBOARD", "DIRECTORY", "REMOVE COMP"], horizontal=True, label_visibility="collapsed")
 
-        companies = supabase.table("companies").select("*").execute().data or []
-        employees = supabase.table("employees").select("company_name").execute().data or []
+        companies = supabase.table("companies").select("*").execute().data or []
+        employees = supabase.table("employees").select("company_name").execute().data or []
 
         if admin_nav == "DASHBOARD":
             st.markdown("""<div class="hero-card"><h3>Super Admin Management</h3><p>Control platform hosts, global parameters, and client operations.</p></div>""", unsafe_allow_html=True)
