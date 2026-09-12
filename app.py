@@ -239,7 +239,7 @@ if not st.session_state.verified_email:
 
 if user_email and not st.session_state.otp_sent:
     if st.button("Send Access Code", use_container_width=True, type="primary"):
-            otp = str(random.randint(100000, 999999))
+        otp = str(random.randint(100000, 999999))
             if send_otp_email(user_email, otp):
                 st.session_state.generated_otp = otp
                 st.session_state.otp_sent = True
