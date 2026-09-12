@@ -432,7 +432,7 @@ elif host_check:
             st.write("### 👤 Edit Host Profile")
             with st.form("host_edit_profile"):
                 h_name_edit = st.text_input("Host Name", value=comp.get("host_name", ""))
-                h_phone_edit = st.text_input("Phone Number", value=comp.get("host_phone", "")
+                h_phone_edit = st.text_input("Phone Number", value=comp.get("host_phone", ""))
                 if st.form_submit_button("Save Changes", use_container_width=True):
                         supabase.table("companies").update({
                         "host_name": h_name_edit.strip(),
@@ -530,7 +530,7 @@ elif host_check:
                             supabase.table("attendance").insert()
                                 "company_name": c_name, "employee_email": active_email,
                                 "employee_name": emp.get("name"), "attendance_date": cur_date_str,
-                                "status": "Present", "latitude": user_lat, "longitude": user_lng
+                                "status": "Present", "latitude": user_lat, "longitude": user_lng,
                             }).execute()
                             st.session_state.emp_coords = False
                             st.success("Attendance marked!")
