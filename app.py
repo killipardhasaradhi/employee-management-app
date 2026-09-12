@@ -404,44 +404,44 @@ elif host_check:
             st.subheader(" Employee Directory & Management")
             emps = supabase.table("employees").select("*").eq("company_name", c_name).execute().data or []
 
-          if emps:
-                st.dataframe(emps, use_container_width=True)
-                st.markdown("---")
-                st.write("### ❌ Remove Employee")
-                emp_options = {f"{e.get('name')} ({e.get('email')})": e.get("email") for e in emps}
-                selected_emp_label = st.selectbox("Select Staff Member", options=list(emp_options.keys()))
-                
-                if st.button("Remove Selected Employee", type="primary", use_container_width=True):
-                    target_email = emp_options[selected_emp_label]
-                    supabase.table("employees").delete().eq("company_name", c_name).eq("email", target_email).execute()
-                    st.success(f"Removed employee successfully!")
-                    st.rerun()
-            else:
-                st.info("No employees registered under this company.")
-
-        elif host_nav == "NOTICES":
-            st.subheader("📢 Post Announcement")
-            msg = st.text_area("Notice Details")
-            if st.button("Publish Announcement", type="primary", use_container_width=True):
-                if msg.strip():
-                    supabase.table("company_notices").insert({"company_name": c_name, "notice_text": msg.strip()}).execute()
-                    st.success("Notice published!")
-
-        elif host_nav == "SETTINGS":
-            st.subheader("⚙️ Host Account Settings")
-            st.write("### 👤 Edit Host Profile")
-            with st.form("host_edit_profile"):
-                h_name_edit = st.text_input("Host Name", value=comp.get("host_name", ""))
-                h_phone_edit = st.text_input("Phone Number", value=comp.get("host_phone", ""))
-                if st.form_submit_button("Save Changes", use_container_width=True):
-                    supabase.table("companies").update({
-                        "host_name": h_name_edit.strip(),
-                        "host_phone": h_phone_edit.strip()
-                    }).eq("host_email", active_email).execute()
-                    st.success("Profile updated!")
-                    st.rerun()
-
-            st.markdown("---")
+            if emps:
+                st.dataframe(emps, use_container_width=True)
+                st.markdown("---")
+                st.write("### ❌ Remove Employee")
+                emp_options = {f"{e.get('name')} ({e.get('email')})": e.get("email") for e in emps}
+                selected_emp_label = st.selectbox("Select Staff Member", options=list(emp_options.keys()))
+                
+                if st.button("Remove Selected Employee", type="primary", use_container_width=True):
+                    target_email = emp_options[selected_emp_label]
+                    supabase.table("employees").delete().eq("company_name", c_name).eq("email", target_email).execute()
+                    st.success(f"Removed employee successfully!")
+                    st.rerun()
+            else:
+                st.info("No employees registered under this company.")
+             
+       elif host_nav == "NOTICES":
+            st.subheader("📢 Post Announcement")
+            msg = st.text_area("Notice Details")
+            if st.button("Publish Announcement", type="primary", use_container_width=True):
+                if msg.strip():
+                    supabase.table("company_notices").insert({"company_name": c_name, "notice_text": msg.strip()}).execute()
+                    st.success("Notice published!")
+                 
+       elif host_nav == "SETTINGS":
+            st.subheader("⚙️ Host Account Settings")
+            st.write("### 👤 Edit Host Profile")
+            with st.form("host_edit_profile"):
+                h_name_edit = st.text_input("Host Name", value=comp.get("host_name", ""))
+                h_phone_edit = st.text_input("Phone Number", value=comp.get("host_phone", "")
+                if st.form_submit_button("Save Changes", use_container_width=True):
+                        supabase.table("companies").update({
+                        "host_name": h_name_edit.strip(),
+                        "host_phone": h_phone_edit.strip()
+                    }).eq("host_email", active_email).execute()
+                    st.success("Profile updated!")
+                    st.rerun()
+                                             
+            st.markdown("---")
             col_so, col_del = st.columns(2)
             with col_so:
                 if st.button("🚪 Sign Out", use_container_width=True):
