@@ -350,7 +350,7 @@ elif host_check:
 
             m1, m2 = st.columns(2)
             m1.metric("Total Staff", len(emps))
-            m2.metric("Present Today", len(today_att)
+            m2.metric("Present Today", len(today_att))
                       
        elif host_nav == "ATTENDANCE":
             st.subheader("📊 Daily Attendance Summary")
@@ -530,7 +530,7 @@ elif host_check:
                             supabase.table("attendance").insert()
                                 "company_name": c_name, "employee_email": active_email,
                                 "employee_name": emp.get("name"), "attendance_date": cur_date_str,
-                                "status": "Present", "latitude": user_lat, "longitude": user_lng,
+                                "status": "Present", "latitude": user_lat, "longitude": user_lng
                             }).execute()
                             st.session_state.emp_coords = False
                             st.success("Attendance marked!")
