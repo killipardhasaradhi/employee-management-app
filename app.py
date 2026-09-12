@@ -350,18 +350,18 @@ elif host_check:
 
             m1, m2 = st.columns(2)
             m1.metric("Total Staff", len(emps))
-            m2.metric("Present Today", len(today_att))
+            m2.metric("Present Today", len(today_att)
+                      
+       elif host_nav == "ATTENDANCE":
+            st.subheader("📊 Daily Attendance Summary")
+            sel_date = st.date_input("Select Date", value=date.today())
 
-        elif host_nav == "ATTENDANCE":
-            st.subheader("📊 Daily Attendance Summary")
-            sel_date = st.date_input("Select Date", value=date.today())
-            
-            emps = supabase.table("employees").select("*").eq("company_name", c_name).execute().data or []
-            att = supabase.table("attendance").select("*").eq("company_name", c_name).eq("attendance_date", str(sel_date)).execute().data or []
-            
-            present_emails = {a.get("employee_email") for a in att}
-            present_list = [e for e in emps if e.get("email") in present_emails]
-            absent_list = [e for e in emps if e.get("email") not in present_emails]
+            emps = supabase.table("employees").select("*").eq("company_name", c_name).execute().data or []
+            att = supabase.table("attendance").select("*").eq("company_name", c_name).eq("attendance_date", str(sel_date)).execute().data or []
+
+            present_emails = {a.get("employee_email") for a in att}
+            present_list = [e for e in emps if e.get("email") in present_emails]
+            absent_list = [e for e in emps if e.get("email") not in present_emails]
             
             c_x, c_y, c_z = st.columns(3)
             c_x.metric("Staff", len(emps))
