@@ -334,12 +334,12 @@ elif host_check:
             </div>
         """, unsafe_allow_html=True)
 
-        # Bottom Bar Navigation 
-        host_nav = st.radio("", ["HOME", "ATTENDANCE", "LOCATION", "STAFF", "NOTICES", "SETTINGS"], horizontal=True, label_visibility="collapsed")
+      # Bottom Bar Navigation
+       host_nav = st.radio("", ["HOME", "ATTENDANCE", "LOCATION", "STAFF", "NOTICES", "SETTINGS"], horizontal=True, label_visibility="collapsed")
 
-        if host_nav == "HOME":
-            st.markdown(f"""
-                <div class="hero-card">
+       if host_nav == "HOME":
+           st.markdown(f"""
+                <div class="hero-card">
                     <h3>Host Dashboard</h3>
                     <p>Welcome back, <b>{comp.get('host_name')}</b></p>
                 </div>
