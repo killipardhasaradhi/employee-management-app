@@ -501,7 +501,7 @@ elif host_check:
                         <p>Verify position within 100 meters of office premises.</p>
                     </div>
                 """, unsafe_allow_html=True)
-                
+                
                 loc_data =streamlit_geolocation()
                 if loc_data and loc_data.get("latitude"):
                     st.session_state.emp_coords = (loc_data["latitude"], loc_data["longitude"])
