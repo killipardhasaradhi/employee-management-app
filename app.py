@@ -205,7 +205,7 @@ for k in SESSION_KEYS:
         st.session_state[k] = False
 def send_otp_email(target_email, otp_code):
        try:
-        msg = MIMEtext(f"Your verification code for PS DIGITAL Platform is: {otp_code}")
+        msg = MIMEText(f"Your verification code for PS DIGITAL Platform is: {otp_code}")
         msg['Subject']='PS DIGITAL - Email Verification Code'
         msg['From'] = SENDER_EMAIL
         msg['To'] = target_email
@@ -214,7 +214,7 @@ def send_otp_email(target_email, otp_code):
         server.sendmail(SENDER_EMAIL, target_email, msg.as_string())
         server.quit()
         return True
-       finally:
+        finally:
          st.error(f"Error sending email: {e}")
          return False
 
@@ -389,7 +389,7 @@ elif host_check:
             """, unsafe_allow_html=True)
 
             host_loc = streamlit_geolocation()
-            if host_loc and host_loc.get("latitude")
+            if host_loc and host_loc.get("latitude"):
                if st.button("🔒 Lock Coordinates", type="primary", use_container_width=True):
                    supabase.table("companies").update({
                         "latitude": host_loc["latitude"],
@@ -505,7 +505,7 @@ elif host_check:
                     st.session_state.emp_coords = (loc_data["latitude"], loc_data["longitude"])
                     
                 if st.session_state.emp_coords:
-                    user_lat, user_lng = st.session_state.emp_coords,
+                    user_lat, user_lng = st.session_state.emp_coords
                     st.success(f"Captured: `{round(user_lat, 4)}, {round(user_lng, 4)}`")
                     if comp_lat and comp_lng:
                         dist = geodesic((user_lat, user_lng), (comp_lat, comp_lng)).meters
@@ -525,7 +525,7 @@ elif host_check:
                             st.error("❌ Too far from office premises (Must be within 100m).")
                     else:
                         if st.button("✋ Submit Attendance", type="primary", use_container_width=True):
-                            supabase.table("attendance").insert()
+                            supabase.table("attendance").insert(){
                                 "company_name": c_name, "employee_email": active_email,
                                 "employee_name": emp.get("name"), "attendance_date": cur_date_str,
                                 "status": "Present", "latitude": user_lat, "longitude": user_lng
@@ -547,7 +547,7 @@ elif host_check:
         
        elif emp_nav == "NOTICES":
             st.subheader("📢 Company Bulletin Board")
-            notice_list = [n for n in notices if n.get("notice_text")
+            notice_list = [n for n in notices if n.get("notice_text")]
             if notice_list:
                 for item in notice_list:
                     st.info(f"• {item.get('notice_text')}")
@@ -604,13 +604,14 @@ with col_delete:
                     <div class="app-subtitle">ACCOUNT ONBOARDING</div>
                 </div>
             </div>
-        """, unsafe_allow_html=True)if st.button("Sign Out"):
+        """, unsafe_allow_html=True)
+if st.button("Sign Out"):
             st.session_state.verified_email = None
             st.rerun()
 
         if st.session_state.show_host_reg:
             st.subheader("🏢 Register Company Profile")
-            with st.form("host_form"):new_c_name = st.text_input("Company Name *").strip().upper()
+         with st.form("host_form"):new_c_name = st.text_input("Company Name *").strip().upper()
                 h_name = st.text_input("Host Name *")
                 h_phone = st.text_input("Phone Number")
                 if st.form_submit_button("Create Host Account"):
@@ -642,9 +643,8 @@ else:
                 dept = st.text_input("Department")
                 pos = st.text_input("Position")
                 phone = st.text_input("Phone Number")
-
-                 if st.form_submit_button("Save Employee Profile"):
-                    if name.strip() and biz_input:
+                  if st.form_submit_button("Save Employee Profile"):
+                     if name.strip() and biz_input:
                         supabase.table("employees").insert({
                             "employee_no": assigned_id,
                             "company_name": biz_input,
