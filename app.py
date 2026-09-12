@@ -362,49 +362,49 @@ elif host_check:
             present_emails = {a.get("employee_email") for a in att}
             present_list = [e for e in emps if e.get("email") in present_emails]
             absent_list = [e for e in emps if e.get("email") not in present_emails]
-            
-            c_x, c_y, c_z = st.columns(3)
-            c_x.metric("Staff", len(emps))
-            c_y.metric("Present", len(present_list))
-            c_z.metric("Absent", len(absent_list))
-            
-            if att:
-                df = pd.DataFrame(att)
-                csv = df.to_csv(index=False).encode('utf-8')
-                st.download_button("Download Report (CSV)", csv, f"Attendance_{c_name}_{sel_date}.csv", "text/csv", use_container_width=True)
 
-        elif host_nav == "LOCATION":
-            st.subheader(" Office GPS Boundary")
-            current_lat, current_lng = comp.get("latitude"), comp.get("longitude")
+            c_x, c_y, c_z = st.columns(3)
+            c_x.metric("Staff", len(emps))
+            c_y.metric("Present", len(present_list))
+            c_z.metric("Absent", len(absent_list))
 
-            if current_lat and current_lng:
-                st.success(f"GPS Coordinates Active: `{current_lat}, {current_lng}`")
-                st.map(pd.DataFrame({'lat': [current_lat], 'lon': [current_lng]}), zoom=15)
-            else:
-                st.warning("No GPS Boundary configured.")
+            if att:
+                df = pd.DataFrame(att)
+                csv = df.to_csv(index=False).encode('utf-8')
+                st.download_button("Download Report (CSV)", csv, f"Attendance_{c_name}_{sel_date}.csv", "text/csv", use_container_width=True)
+             
+        elif host_nav == "LOCATION":
+            st.subheader(" Office GPS Boundary")
+            current_lat, current_lng = comp.get("latitude"), comp.get("longitude")
 
-            st.markdown("""
-                <div class="location-box">
-                    <h4> Configure GPS Lock</h4>
-                    <p>Trigger scanner below to lock official office coordinates.</p>
-                </div>
-            """, unsafe_allow_html=True)
-            
-            host_loc = streamlit_geolocation()
-            if host_loc and host_loc.get("latitude"):
-                if st.button("🔒 Lock Coordinates", type="primary", use_container_width=True):
-                    supabase.table("companies").update({
-                        "latitude": host_loc["latitude"],
-                        "longitude": host_loc["longitude"]
-                    }).eq("company_name", c_name).execute()
-                    st.success("Location locked successfully!")
-                    st.rerun()
+            if current_lat and current_lng:
+                st.success(f"GPS Coordinates Active: `{current_lat}, {current_lng}`")
+                st.map(pd.DataFrame({'lat': [current_lat], 'lon': [current_lng]}), zoom=15)
+            else:
+                st.warning("No GPS Boundary configured.")
+                
+            st.markdown("""
+                    <div class="location-box">
+                    <h4> Configure GPS Lock</h4>
+                    <p>Trigger scanner below to lock official office coordinates.</p>
+                </div>
+            """, unsafe_allow_html=True)
 
-        elif host_nav == "STAFF":
-            st.subheader(" Employee Directory & Management")
-            emps = supabase.table("employees").select("*").eq("company_name", c_name).execute().data or []
-            
-            if emps:
+            host_loc = streamlit_geolocation()
+            if host_loc and host_loc.get("latitude")
+               if st.button("🔒 Lock Coordinates", type="primary", use_container_width=True):
+                   supabase.table("companies").update({
+                        "latitude": host_loc["latitude"],
+                        "longitude": host_loc["longitude"]
+                   }).eq("company_name", c_name).execute()
+                   st.success("Location locked successfully!")
+                   st.rerun()
+                   
+        elif host_nav == "STAFF":
+            st.subheader(" Employee Directory & Management")
+            emps = supabase.table("employees").select("*").eq("company_name", c_name).execute().data or []
+
+          if emps:
                 st.dataframe(emps, use_container_width=True)
                 st.markdown("---")
                 st.write("### ❌ Remove Employee")
