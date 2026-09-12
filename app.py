@@ -214,7 +214,7 @@ def send_otp_email(target_email, otp_code):
         server.sendmail(SENDER_EMAIL, target_email, msg.as_string())
         server.quit()
         return True
-finally as e:
+except Exception as e:
         st.error(f"Error sending email: {e}")
         return False
 
