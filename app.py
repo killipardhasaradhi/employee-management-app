@@ -527,30 +527,30 @@ elif host_check:
                             st.error("❌ Too far from office premises (Must be within 100m).")
                     else:
                         if st.button("✋ Submit Attendance", type="primary", use_container_width=True):
-                            supabase.table("attendance").insert({
-                                "company_name": c_name, "employee_email": active_email,
-                                "employee_name": emp.get("name"), "attendance_date": cur_date_str,
-                                "status": "Present", "latitude": user_lat, "longitude": user_lng
-                            }).execute()
-                            st.session_state.emp_coords = False
-                            st.success("Attendance marked!")
-                            st.rerun()
-
-        elif emp_nav == "GEOFENCE":
-            st.subheader(" Geofence Map Verification")
-            if st.session_state.emp_coords:
-                u_lat, u_lng = st.session_state.emp_coords
-                pts = [{'lat': u_lat, 'lon': u_lng}]
-                if comp_lat and comp_lng:
-                    pts.append({'lat': comp_lat, 'lon': comp_lng})
-                st.map(pd.DataFrame(pts), zoom=15)
-            else:
-                st.info("Capture your location on the Attendance tab to view map coordinates.")
-
-        elif emp_nav == "NOTICES":
-            st.subheader("📢 Company Bulletin Board")
-            notice_list = [n for n in notices if n.get("notice_text")]
-            if notice_list:
+                            supabase.table("attendance").insert()
+                                "company_name": c_name, "employee_email": active_email,
+                                "employee_name": emp.get("name"), "attendance_date": cur_date_str,
+                                "status": "Present", "latitude": user_lat, "longitude": user_lng
+                            }).execute()
+                            st.session_state.emp_coords = False
+                            st.success("Attendance marked!")
+                            st.rerun()
+                         
+        elif emp_nav == "GEOFENCE":
+           st.subheader(" Geofence Map Verification")
+            if st.session_state.emp_coords:
+                u_lat, u_lng = st.session_state.emp_coords
+                pts = [{'lat': u_lat, 'lon': u_lng}]
+                if comp_lat and comp_lng:
+                    pts.append({'lat': comp_lat, 'lon': comp_lng})
+                st.map(pd.DataFrame(pts), zoom=15)
+            else:
+                st.info("Capture your location on the Attendance tab to view map coordinates.")
+        
+       elif emp_nav == "NOTICES":
+            st.subheader("📢 Company Bulletin Board")
+            notice_list = [n for n in notices if n.get("notice_text")
+            if notice_list:
                 for item in notice_list:
                     st.info(f"• {item.get('notice_text')}")
             else:
