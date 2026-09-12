@@ -442,61 +442,61 @@ elif host_check:
                     st.rerun()
                                              
             st.markdown("---")
-            col_so, col_del = st.columns(2)
-            with col_so:
-                if st.button("🚪 Sign Out", use_container_width=True):
-                    st.session_state.verified_email = None
-                    st.rerun()
-            with col_del:
-                confirm_host_del = st.checkbox("Confirm deletion")
-                if st.button("❌ Delete Profile", type="primary", use_container_width=True, disabled=not confirm_host_del):
-                    supabase.table("companies").delete().eq("host_email", active_email).execute()
-                    st.session_state.verified_email = None
-                    st.rerun()
+            col_so, col_del = st.columns(2)
+            with col_so:
+                if st.button("🚪 Sign Out", use_container_width=True):
+                    st.session_state.verified_email = None
+                    st.rerun()
+            with col_del:
+                confirm_host_del = st.checkbox("Confirm deletion")
+                if st.button("❌ Delete Profile", type="primary", use_container_width=True, disabled=not confirm_host_del):
+                    supabase.table("companies").delete().eq("host_email", active_email).execute()
+                    st.session_state.verified_email = None
+                    st.rerun()
+                    
+    # =========================================================
+    # 3. EMPLOYEE DASHBOARD
+    # =========================================================
+    elif emp_records:
+        emp = emp_records[0]
+        c_name = emp.get("company_name", "Company Portal")
 
-    # =========================================================
-    # 3. EMPLOYEE DASHBOARD
-    # =========================================================
-    elif emp_records:
-        emp = emp_records[0]
-        c_name = emp.get("company_name", "Company Portal")
+      st.markdown(f"""
+          <div class="app-brand-header">
+                <div>
+                    <div class="app-title">{c_name}</div>
+                    <div class="app-subtitle">MEMBER PORTAL</div>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
 
-        st.markdown(f"""
-            <div class="app-brand-header">
-                <div>
-                    <div class="app-title">{c_name}</div>
-                    <div class="app-subtitle">MEMBER PORTAL</div>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
+   # Bottom Bar Navigation
+      emp_nav = st.radio("", ["ATTEND", "GEOFENCE", "NOTICES", "PROFILE"], horizontal=True, label_visibility="collapsed")
 
-        # Bottom Bar Navigation
-        emp_nav = st.radio("", ["ATTEND", "GEOFENCE", "NOTICES", "PROFILE"], horizontal=True, label_visibility="collapsed")
+        try:
+            notices = supabase.table("company_notices").select("*").eq("company_name", c_name).order("created_at", desc=True).execute().data or []
+        except Exception:
+            notices = []
 
-        try:
-            notices = supabase.table("company_notices").select("*").eq("company_name", c_name).order("created_at", desc=True).execute().data or []
-        except Exception:
-            notices = []
+        comp_info = supabase.table("companies").select("*").eq("company_name", c_name).execute().data
+        comp_lat = comp_info[0].get("latitude") if comp_info else None
+        comp_lng = comp_info[0].get("longitude") if comp_info else None
+        cur_date_str = str(date.today())
 
-        comp_info = supabase.table("companies").select("*").eq("company_name", c_name).execute().data
-        comp_lat = comp_info[0].get("latitude") if comp_info else None
-        comp_lng = comp_info[0].get("longitude") if comp_info else None
-        cur_date_str = str(date.today())
+      if emp_nav == "ATTEND":
+          st.markdown(f"""
+              <div class="hero-card">
+                <h3>Welcome back, {emp.get("name")}!</h3>
+                <p>Dept: <b>{emp.get("department", "General")}</b> | ID: <b>{emp.get("employee_no")}</b></p>
+                </div>
+                """, unsafe_allow_html=True)
 
-      if emp_nav == "ATTEND":
-           st.markdown(f"""
-                <div class="hero-card">
-                    <h3>Welcome back, {emp.get("name")}!</h3>
-                    <p>Dept: <b>{emp.get("department", "General")}</b> | ID: <b>{emp.get("employee_no")}</b></p>
-                </div>
-            """, unsafe_allow_html=True)
+          check_att = supabase.table("attendance").select("*").eq("company_name", c_name).eq("employee_email", active_email).eq("attendance_date", cur_date_str).execute().data
 
-            check_att = supabase.table("attendance").select("*").eq("company_name", c_name).eq("employee_email", active_email).eq("attendance_date", cur_date_str).execute().data
-
-            if check_att:
-                st.success(f"✅ Marked Present for Today ({cur_date_str})")
-                else:st.markdown("""
-                    <div class="location-box">
+            if check_att:
+                st.success(f"✅ Marked Present for Today ({cur_date_str})")
+            else:st.markdown("""
+               <div class="location-box">
                         <h4>GPS Verification Terminal</h4>
                         <p>Verify position within 100 meters of office premises.</p>
                     </div>
