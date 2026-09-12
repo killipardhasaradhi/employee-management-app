@@ -245,7 +245,7 @@ if not st.session_state.verified_email:
     st.markdown("""
         <div class="app-brand-header">
             <div>
-                <div class="app-title">LockIn PS</div>
+                <div class="app-title">PS DIGITAL</div>
                 <div class="app-subtitle">ENTERPRISE ATTENDANCE PORTAL</div>
             </div>
         </div>
