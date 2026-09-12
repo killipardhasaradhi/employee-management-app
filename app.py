@@ -502,13 +502,13 @@ elif host_check:
                     </div>
                 """, unsafe_allow_html=True)
                 
-                loc_data =streamlit_geolocation()
-                if loc_data and loc_data.get("latitude"):
-                    st.session_state.emp_coords = (loc_data["latitude"], loc_data["longitude"])
-
-                if st.session_state.emp_coords:
-                    user_lat, user_lng = st.session_state.emp_coords
-                    st.success(f"Captured: `{round(user_lat, 4)}, {round(user_lng, 4)}`")
+                loc_data =streamlit_geolocation()
+                if loc_data and loc_data.get("latitude"):
+                    st.session_state.emp_coords = (loc_data["latitude"], loc_data["longitude"])
+                    
+                if st.session_state.emp_coords:
+                    user_lat, user_lng = st.session_state.emp_coords,
+                    st.success(f"Captured: `{round(user_lat, 4)}, {round(user_lng, 4)}`")
   if comp_lat and comp_lng:
                         dist = geodesic((user_lat, user_lng), (comp_lat, comp_lng)).meters
                         st.write(f"Distance to Office: **{round(dist, 1)} meters**")
