@@ -219,7 +219,7 @@ except Exception as e:
         return False
 
 def generate_unique_emp_id():
-    return str(random.randint(1001, 9999))
+    return str(random.randint(1001, 9999))
 
 # ---------------------------------------------------------
 # STAGE 1: LOGIN & OTP VERIFICATION
