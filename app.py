@@ -287,7 +287,7 @@ else:
         """, unsafe_allow_html=True)
 
         admin_nav = st.radio("", ["DASHBOARD", "DIRECTORY", "REMOVE COMP"], horizontal=True, label_visibility="collapsed")
-o
+
         companies = supabase.table("companies").select("*").execute().data or []
         employees = supabase.table("employees").select("company_name").execute().data or []
 
