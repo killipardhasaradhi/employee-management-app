@@ -263,17 +263,17 @@ if user_email and not st.session_state.otp_sent:
 # STAGE 2: MAIN PORTAL (AUTOMATIC ROUTING)
 # ---------------------------------------------------------
 else:
-    active_email = st.session_state.verified_email
+    active_email = st.session_state.verified_email
     
-    try:
-        host_check = supabase.table("companies").select("*").eq("host_email", active_email).execute().data
-    except Exception:
-        host_check = []
+  try:
+      host_check = supabase.table("companies").select("*").eq("host_email", active_email).execute().data
+  except Exception:
+      host_check = []
 
-    try:
-        emp_records = supabase.table("employees").select("*").eq("email", active_email).execute().data
-    except Exception:
-        emp_records = []
+  try:
+      emp_records = supabase.table("employees").select("*").eq("email", active_email).execute().data
+   except Exception:
+       emp_records = []
 
     # =========================================================
     # 1. SUPER ADMIN DASHBOARD
