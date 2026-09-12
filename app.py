@@ -278,7 +278,7 @@ else:
     # =========================================================
     # 1. SUPER ADMIN DASHBOARD
     # =========================================================
-  if active_email == SUPER_ADMIN_EMAIL:
+if active_email == SUPER_ADMIN_EMAIL:
       st.markdown("""
             <div class="app-brand-header">
                 <div class="app-title">Admin Console</div>
