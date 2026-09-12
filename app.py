@@ -335,7 +335,7 @@ else:
             </div>
         """, unsafe_allow_html=True)
 
-        # Bottom Bar Navigation
+        # Bottom Bar Navigation 
         host_nav = st.radio("", ["HOME", "ATTENDANCE", "LOCATION", "STAFF", "NOTICES", "SETTINGS"], horizontal=True, label_visibility="collapsed")
 
         if host_nav == "HOME":
