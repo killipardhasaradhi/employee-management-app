@@ -278,8 +278,8 @@ else:
     # =========================================================
     # 1. SUPER ADMIN DASHBOARD
     # =========================================================
-    if active_email == SUPER_ADMIN_EMAIL:
-        st.markdown("""
+  if active_email == SUPER_ADMIN_EMAIL:
+      st.markdown("""
             <div class="app-brand-header">
                 <div class="app-title">Admin Console</div>
                 <div class="app-subtitle">SUPER ADMIN CONTROL</div>
@@ -291,17 +291,17 @@ else:
         companies = supabase.table("companies").select("*").execute().data or []
         employees = supabase.table("employees").select("company_name").execute().data or []
 
-        if admin_nav == "DASHBOARD":
-            st.markdown("""<div class="hero-card"><h3>Super Admin Management</h3><p>Control platform hosts, global parameters, and client operations.</p></div>""", unsafe_allow_html=True)
+        if admin_nav == "DASHBOARD":
+            st.markdown("""<div class="hero-card"><h3>Super Admin Management</h3><p>Control platform hosts, global parameters, and client operations.</p></div>""", unsafe_allow_html=True)
             col_a, col_b = st.columns(2)
             col_a.metric("Total Companies", len(companies))
             col_b.metric("Total Users", len(employees))
 
-        elif admin_nav == "DIRECTORY":
+        elif admin_nav == "DIRECTORY":
             st.subheader("Registered Companies")
             st.dataframe(companies, use_container_width=True)
 
-        elif admin_nav == "REMOVE COMP":
+        elif admin_nav == "REMOVE COMP":
             st.subheader(" Delete Company Profile")
             company_names = [c.get("company_name") for c in companies if c.get("company_name")]
             if company_names:
