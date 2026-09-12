@@ -285,7 +285,7 @@ if active_email == SUPER_ADMIN_EMAIL:
                 <div class="app-subtitle">SUPER ADMIN CONTROL</div>
             </div>
         """, unsafe_allow_html=True)
-        admin_nav = st.radio("", ["DASHBOARD", "DIRECTORY", "REMOVE COMP"], horizontal=True, label_visibility="collapsed")
+         admin_nav = st.radio("",["DASHBOARD", "DIRECTORY", "REMOVE COMP"], horizontal=True, label_visibility="collapsed")
         companies = supabase.table("companies").select("*").execute().data or []
         employees = supabase.table("employees").select("company_name").execute().data or []
 
