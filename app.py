@@ -210,8 +210,8 @@ def send_otp_email(target_email, otp_code):
         msg['From'] = SENDER_EMAIL
         msg['To'] = target_email
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-        server.login(SENDER_EMAIL, SENDER_PASSWORD)
-        server.sendmail(SENDER_EMAIL, target_email, msg.as_string())
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        server.sendmail(SENDER_EMAIL, target_email, msg.as_string())
         server.quit()
         return True
     except Exception as e:
