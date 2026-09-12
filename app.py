@@ -247,17 +247,17 @@ if user_email and not st.session_state.otp_sent:
                 st.success(f"Verification code sent to {user_email}")
                 st.rerun()
 
-    if st.session_state.otp_sent:
-        st.info(f"Enter the 6-digit verification code sent to {st.session_state.temp_email}")
-        input_otp = st.text_input("Verification Code", max_chars=6, placeholder="123456")
+ if st.session_state.otp_sent:
+        st.info(f"Enter the 6-digit verification code sent to {st.session_state.temp_email}")
+        input_otp = st.text_input("Verification Code", max_chars=6, placeholder="123456")
 
-        if st.button("Verify & Continue", use_container_width=True, type="primary"):
-            if input_otp == st.session_state.generated_otp:
-                st.session_state.verified_email = st.session_state.temp_email
-                st.session_state.otp_sent = False
-                st.rerun()
-            else:
-                st.error("Invalid Code!")
+     if st.button("Verify & Continue", use_container_width=True, type="primary"):
+         if input_otp == st.session_state.generated_otp:
+                st.session_state.verified_email = st.session_state.temp_email
+                st.session_state.otp_sent = False
+                st.rerun()
+         else:
+             st.error("Invalid Code!")
 
 # ---------------------------------------------------------
 # STAGE 2: MAIN PORTAL (AUTOMATIC ROUTING)
