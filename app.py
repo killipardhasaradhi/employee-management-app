@@ -509,25 +509,25 @@ elif host_check:
                 if st.session_state.emp_coords:
                     user_lat, user_lng = st.session_state.emp_coords,
                     st.success(f"Captured: `{round(user_lat, 4)}, {round(user_lng, 4)}`")
-  if comp_lat and comp_lng:
-                        dist = geodesic((user_lat, user_lng), (comp_lat, comp_lng)).meters
-                        st.write(f"Distance to Office: **{round(dist, 1)} meters**")
-
-                        if dist <= 100:
-                            if st.button("✋ Submit Attendance", type="primary", use_container_width=True):
-                                supabase.table("attendance").insert({
-                                    "company_name": c_name, "employee_email": active_email,
-                                    "employee_name": emp.get("name"), "attendance_date": cur_date_str,
-                                    "status": "Present", "latitude": user_lat, "longitude": user_lng
-                                }).execute()
-                                st.session_state.emp_coords = False
-                                st.success("Attendance marked!")
-                                st.rerun()
-                        else:
-                            st.error("❌ Too far from office premises (Must be within 100m).")
-                    else:
-                        if st.button("✋ Submit Attendance", type="primary", use_container_width=True):
-                            supabase.table("attendance").insert({
+                    if comp_lat and comp_lng:
+                        dist = geodesic((user_lat, user_lng), (comp_lat, comp_lng)).meters
+                        st.write(f"Distance to Office: **{round(dist, 1)} meters**")
+                        
+                        if dist <= 100:
+                            if st.button("✋ Submit Attendance", type="primary", use_container_width=True):
+                                supabase.table("attendance").insert({
+                                    "company_name": c_name, "employee_email": active_email,
+                                    "employee_name": emp.get("name"), "attendance_date": cur_date_str,
+                                    "status": "Present", "latitude": user_lat, "longitude": user_lng
+                                }).execute()
+                                st.session_state.emp_coords = False
+                                st.success("Attendance marked!")
+                                st.rerun()
+                        else:
+                            st.error("❌ Too far from office premises (Must be within 100m).")
+                    else:
+                        if st.button("✋ Submit Attendance", type="primary", use_container_width=True):
+                            supabase.table("attendance").insert({
                                 "company_name": c_name, "employee_email": active_email,
                                 "employee_name": emp.get("name"), "attendance_date": cur_date_str,
                                 "status": "Present", "latitude": user_lat, "longitude": user_lng
