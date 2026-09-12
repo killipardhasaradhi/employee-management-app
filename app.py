@@ -275,9 +275,9 @@ else:
     except Exception:
         emp_records = []
 
-    # =========================================================
-    # 1. SUPER ADMIN DASHBOARD
-    # =========================================================
+    # =========================================================
+    # 1. SUPER ADMIN DASHBOARD
+    # =========================================================
     if active_email == SUPER_ADMIN_EMAIL:
         st.markdown("""
             <div class="app-brand-header">
