@@ -235,7 +235,7 @@ if not st.session_state.verified_email:
     """, unsafe_allow_html=True)
     
     st.write("### Sign In to Account")
-    user_email = st.text_input("Enter Email Address", placeholder="name@company.com").strip().lower()
+    user_email = st.text_input("EnterEmail Address", placeholder="name@company.com").strip().lower()
 
     if user_email and not st.session_state.otp_sent:
         if st.button("Send Access Code", use_container_width=True, type="primary"):
