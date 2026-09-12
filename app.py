@@ -242,10 +242,10 @@ if user_email and not st.session_state.otp_sent:
         otp = str(random.randint(100000, 999999))
         if send_otp_email(user_email, otp):
                 st.session_state.generated_otp = otp
-                st.session_state.otp_sent = True
-                st.session_state.temp_email = user_email
-                st.success(f"Verification code sent to {user_email}")
-                st.rerun()
+                st.session_state.otp_sent = True
+                st.session_state.temp_email = user_email
+                st.success(f"Verification code sent to {user_email}")
+                st.rerun()
 
     if st.session_state.otp_sent:
         st.info(f"Enter the 6-digit verification code sent to {st.session_state.temp_email}")
