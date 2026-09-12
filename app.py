@@ -225,7 +225,7 @@ def generate_unique_emp_id():
 # STAGE 1: LOGIN & OTP VERIFICATION
 # ---------------------------------------------------------
 if not st.session_state.verified_email:
-    st.markdown("""
+    st.markdown("""
         <div class="app-brand-header">
             <div>
                 <div class="app-title">LockIn PS</div>
