@@ -246,8 +246,8 @@ if user_email and not st.session_state.otp_sent:
                 st.session_state.temp_email = user_email
                 st.success(f"Verification code sent to {user_email}")
                 st.rerun()
-
-      if st.session_state.otp_sent:
+            
+if st.session_state.otp_sent:
           st.info(f"Enter the 6-digit verification code sent to {st.session_state.temp_email}")
           input_otp = st.text_input("Verification Code", max_chars=6, placeholder="123456")
 
