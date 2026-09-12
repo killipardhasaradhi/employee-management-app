@@ -233,8 +233,8 @@ if not st.session_state.verified_email:
             </div>
         </div>
     """, unsafe_allow_html=True)
-    
-    st.write("### Sign In to Account")
+    
+    st.write("### Sign In to Account")
     user_email = st.text_input("Enter Email Address", placeholder="name@company.com").strip().lower()
 
     if user_email and not st.session_state.otp_sent:
