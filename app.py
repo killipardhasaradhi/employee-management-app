@@ -319,10 +319,10 @@ else:
                 else:
                     st.info("No registered companies found.")
 
-    # =========================================================
-    # 2. HOST DASHBOARD
-    # =========================================================
-    elif host_check:
+    # =========================================================
+    # 2. HOST DASHBOARD
+    # =========================================================
+elif host_check:
         comp = host_check[0]
         c_name = comp.get("company_name", "Company Portal")
          st.markdown(f"""
