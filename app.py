@@ -344,12 +344,12 @@ elif host_check:
                     <p>Welcome back, <b>{comp.get('host_name')}</b></p>
                 </div>
             """, unsafe_allow_html=True)
-            
-            emps = supabase.table("employees").select("*").eq("company_name", c_name).execute().data or []
-            today_att = supabase.table("attendance").select("*").eq("company_name", c_name).eq("attendance_date", str(date.today())).execute().data or []
-            
-            m1, m2 = st.columns(2)
-            m1.metric("Total Staff", len(emps))
+           
+            emps = supabase.table("employees").select("*").eq("company_name", c_name).execute().data or []
+            today_att = supabase.table("attendance").select("*").eq("company_name", c_name).eq("attendance_date", str(date.today())).execute().data or []
+
+            m1, m2 = st.columns(2)
+            m1.metric("Total Staff", len(emps))
             m2.metric("Present Today", len(today_att))
 
         elif host_nav == "ATTENDANCE":
