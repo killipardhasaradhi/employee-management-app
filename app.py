@@ -212,11 +212,11 @@ def send_otp_email(target_email, otp_code):
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
         server.login(SENDER_EMAIL, SENDER_PASSWORD)
         server.sendmail(SENDER_EMAIL, target_email, msg.as_string())
-        server.quit()
+        server.quit()
         return True
-    except Exception as e:
-        st.error(f"Error sending email: {e}")
-        return False
+except Exception as e:
+        st.error(f"Error sending email: {e}")
+        return False
 
 def generate_unique_emp_id():
     return str(random.randint(1001, 9999))
