@@ -315,7 +315,7 @@ else:
                         st.success(f"Company '{comp_to_remove}' deleted!")
                         st.rerun()
                     except Exception as err:
-                        1st.error(f"Error: {err}")
+                        st.error(f"Error: {err}")
                 else:
                     st.info("No registered companies found.")
 
