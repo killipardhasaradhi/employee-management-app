@@ -293,40 +293,39 @@ else:
 
         if admin_nav == "DASHBOARD":
             st.markdown("""<div class="hero-card"><h3>Super Admin Management</h3><p>Control platform hosts, global parameters, and client operations.</p></div>""", unsafe_allow_html=True)
-            col_a, col_b = st.columns(2)
-            col_a.metric("Total Companies", len(companies))
-            col_b.metric("Total Users", len(employees))
+            col_a, col_b = st.columns(2)
+            col_a.metric("Total Companies", len(companies))
+            col_b.metric("Total Users", len(employees))
 
         elif admin_nav == "DIRECTORY":
-            st.subheader("Registered Companies")
-            st.dataframe(companies, use_container_width=True)
+            st.subheader("Registered Companies")
+            st.dataframe(companies, use_container_width=True)
 
         elif admin_nav == "REMOVE COMP":
-            st.subheader(" Delete Company Profile")
-            company_names = [c.get("company_name") for c in companies if c.get("company_name")]
-            if company_names:
-                comp_to_remove = st.selectbox("Select Company to Remove", options=company_names)
-                if st.button("❌ Remove Company", type="primary", use_container_width=True):
-                    try:
-                        supabase.table("companies").delete().eq("company_name", comp_to_remove).execute()
-                        supabase.table("employees").delete().eq("company_name", comp_to_remove).execute()
-                        supabase.table("attendance").delete().eq("company_name", comp_to_remove).execute()
-                        supabase.table("company_notices").delete().eq("company_name", comp_to_remove).execute()
-                        st.success(f"Company '{comp_to_remove}' deleted!")
-                        st.rerun()
-                    except Exception as err:
-                        st.error(f"Error: {err}")
-            else:
-                st.info("No registered companies found.")
+            st.subheader(" Delete Company Profile")
+            company_names = [c.get("company_name") for c in companies if c.get("company_name")]
+            if company_names:
+                comp_to_remove = st.selectbox("Select Company to Remove", options=company_names)
+                if st.button("❌ Remove Company", type="primary", use_container_width=True):
+                    try:
+                        supabase.table("companies").delete().eq("company_name", comp_to_remove).execute()
+                        supabase.table("employees").delete().eq("company_name", comp_to_remove).execute()
+                        supabase.table("attendance").delete().eq("company_name", comp_to_remove).execute()
+                        supabase.table("company_notices").delete().eq("company_name", comp_to_remove).execute()
+                        st.success(f"Company '{comp_to_remove}' deleted!")
+                        st.rerun()
+                    except Exception as err:
+                        1st.error(f"Error: {err}")
+                else:
+                    st.info("No registered companies found.")
 
     # =========================================================
     # 2. HOST DASHBOARD
     # =========================================================
     elif host_check:
-        comp = host_check[0]
-        c_name = comp.get("company_name", "Company Portal")
-
-        st.markdown(f"""
+        comp = host_check[0]
+        c_name = comp.get("company_name", "Company Portal")
+         st.markdown(f"""
             <div class="app-brand-header">
                 <div>
                     <div class="app-title">{c_name}</div>
