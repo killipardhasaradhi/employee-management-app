@@ -196,8 +196,8 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 SUPER_ADMIN_EMAIL = "pardhukilli273@gmail.com"
-SENDER_EMAIL = "pardhukilli273@gmail.com"
-SENDER_PASSWORD = "fneh pjig gqum vtmv"
+SENDER_EMAIL = "psdigitalmanagementsystem@gmail.com"
+SENDER_PASSWORD = "nmaz vapa mvur hnir"
 
 SESSION_KEYS = [
     "otp_sent", "generated_otp", "verified_email", "show_host_reg",
