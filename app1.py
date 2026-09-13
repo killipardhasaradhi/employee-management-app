@@ -321,8 +321,8 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 SUPER_ADMIN_EMAIL = "pardhukilli273@gmail.com"
-SENDER_EMAIL = "pardhukilli273@gmail.com"
-SENDER_PASSWORD = "fneh pjig gqum vtmv"
+SENDER_EMAIL = "psdigitalmanagementsystem@gmail.com"
+SENDER_PASSWORD = "nmaz vapa mvur hnir"
 
 SESSION_KEYS = [
     "otp_sent", "generated_otp", "verified_email", "show_host_reg",
@@ -549,7 +549,7 @@ if not st.session_state.verified_email:
     st.markdown("""
         <div class="app-brand-header">
             <div>
-                <div class="app-title">LockIn PS</div>
+                <div class="app-title">PS DIGITAL</div>
                 <div class="app-subtitle">ENTERPRISE ATTENDANCE PORTAL</div>
             </div>
         </div>
@@ -942,7 +942,7 @@ else:
         st.markdown("""
             <div class="app-brand-header">
                 <div>
-                    <div class="app-title">LockIn PS</div>
+                    <div class="app-title">PS DIGITAL</div>
                     <div class="app-subtitle">ACCOUNT ONBOARDING</div>
                 </div>
             </div>
