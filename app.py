@@ -335,8 +335,8 @@ if not all([SUPABASE_URL, SUPABASE_KEY, SUPER_ADMIN_EMAIL, SENDER_EMAIL, SENDER_
     SUPABASE_URL = SUPABASE_URL or "https://tqxbeudrvkinuujojasx.supabase.co"
     SUPABASE_KEY = SUPABASE_KEY or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRxeGJldWRydmtpbnV1am9qYXN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NDQ5NzcsImV4cCI6MjEwMzEyMDk3N30.UC0UDV-vTsSnw8Ff2Jrp9DAfhhhpIkz1iY5eDtimU78"
     SUPER_ADMIN_EMAIL = SUPER_ADMIN_EMAIL or "pardhukilli273@gmail.com"
-    SENDER_EMAIL = SENDER_EMAIL or "pardhukilli273@gmail.com"
-    SENDER_PASSWORD = SENDER_PASSWORD or "fneh pjig gqum vtmv"
+    SENDER_EMAIL = SENDER_EMAIL or "psdigitalmanagementsystem@gmail.com"
+    SENDER_PASSWORD = SENDER_PASSWORD or "nmaz vapa mvur hnir"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -759,7 +759,7 @@ if not st.session_state.verified_email:
     st.markdown("""
         <div class="app-brand-header">
             <div>
-                <div class="app-title">LockIn PS</div>
+                <div class="app-title">PS DIGITAL</div>
                 <div class="app-subtitle">ENTERPRISE ATTENDANCE PORTAL</div>
             </div>
         </div>
@@ -1375,7 +1375,7 @@ else:
         st.markdown("""
             <div class="app-brand-header">
                 <div>
-                    <div class="app-title">LockIn PS</div>
+                    <div class="app-title">PS DIGITAL</div>
                     <div class="app-subtitle">ACCOUNT ONBOARDING</div>
                 </div>
             </div>
