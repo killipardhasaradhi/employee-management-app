@@ -1,6 +1,6 @@
-streamlit
-pandas
-supabase
-streamlit-geolocation
-geopy
-reportlab
+streamlit>=1.38,<2.0
+pandas>=2.0,<3.0
+supabase>=2.5,<3.0
+streamlit-geolocation>=0.0.9
+geopy>=2.4,<3.0
+reportlab>=4.0,<5.0
